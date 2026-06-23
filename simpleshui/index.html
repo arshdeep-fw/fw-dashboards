@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simple Shui · Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f14;color:#e8e4ff;line-height:1.5}
+a{color:inherit;text-decoration:none}
+.page{padding:36px 32px;max-width:980px;margin:0 auto}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px}
+.brand{display:flex;align-items:center;gap:16px}
+.brand-mark{width:48px;height:48px;border-radius:16px;background:#7c5cff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:600;flex-shrink:0}
+.brand-name{font-size:22px;font-weight:500;color:#f0eeff;line-height:1.2}
+.brand-sub{font-size:13px;color:#8b85a8;margin-top:3px}
+.refresh-pill{display:flex;align-items:center;gap:7px;font-size:12px;color:#8b85a8;background:#1a1825;border:0.5px solid #2e2a45;border-radius:99px;padding:7px 16px}
+.pulse{width:7px;height:7px;border-radius:50%;background:#3ec97c;flex-shrink:0;animation:blink 2.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* KPI strip */
+.kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:36px}
+@media(max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+.kpi{background:#1a1825;border:0.5px solid #2e2a45;border-radius:20px;padding:20px 22px}
+.kpi-label{font-size:11px;color:#8b85a8;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.05em}
+.kpi-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.kpi-val{font-size:28px;font-weight:500;color:#f0eeff;line-height:1}
+.kpi-sub{font-size:12px;color:#8b85a8;margin-top:7px}
+
+/* Section headers */
+.section-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
+.section-pill{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;background:rgba(124,92,255,.15);color:#a990ff;border-radius:99px;padding:5px 14px;white-space:nowrap}
+.section-line{flex:1;height:0.5px;background:#2e2a45}
+.spacer{height:36px}
+
+/* Cards */
+.card{background:#141220;border:0.5px solid #2e2a45;border-radius:24px;padding:24px 26px;margin-bottom:18px;border-left:2.5px solid rgba(124,92,255,.4)}
+.card.green-accent{border-left-color:rgba(62,201,124,.4)}
+.card-title{font-size:15px;font-weight:500;color:#f0eeff;margin-bottom:5px}
+.card-sub{font-size:12px;color:#8b85a8;margin-bottom:18px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:18px}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+
+/* Chart */
+.chart-wrap{position:relative;width:100%}
+
+/* Legend */
+.legend{display:flex;gap:18px;margin-bottom:14px;font-size:12px;color:#8b85a8;flex-wrap:wrap}
+.leg-line{width:24px;height:3px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:6px}
+
+/* Sources */
+.src-list{list-style:none;margin-top:4px}
+.src-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:0.5px solid #2e2a45}
+.src-item:last-child{border-bottom:none}
+.src-rank{font-size:11px;color:#8b85a8;width:18px;text-align:center;flex-shrink:0}
+.src-name{font-size:13px;color:#e0daf5;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src-track{flex:0 0 140px;height:6px;background:#1e1c2e;border-radius:99px;overflow:hidden}
+.src-fill{height:100%;background:#7c5cff;border-radius:99px}
+.src-n{font-size:13px;font-weight:500;color:#f0eeff;width:38px;text-align:right;flex-shrink:0}
+
+/* Footer */
+.footer{font-size:12px;color:#5a5570;text-align:center;padding-top:24px;border-top:0.5px solid #2e2a45;margin-top:12px;line-height:2}
+.footer span{color:#7c5cff}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="brand">
+      <div class="brand-mark">SS</div>
+      <div>
+        <div class="brand-name">Simple Shui</div>
+        <div class="brand-sub">Amanda Gibby Peters</div>
+      </div>
+    </div>
+    <div class="refresh-pill">
+      <div class="pulse"></div>
+      Updated daily &nbsp;·&nbsp; 2026-06-17 00:00
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#7c5cff"></span>Total revenue</div>
+      <div class="kpi-val" id="kTotalRev">—</div>
+      <div class="kpi-sub">all time</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>Total contacts</div>
+      <div class="kpi-val" id="kTotalContacts">—</div>
+      <div class="kpi-sub">all time</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#7c5cff"></span>Revenue · 45d</div>
+      <div class="kpi-val" id="k45Rev">—</div>
+      <div class="kpi-sub">last 45 days</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>New contacts · 45d</div>
+      <div class="kpi-val" id="k45Contacts">—</div>
+      <div class="kpi-sub">last 45 days</div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <div class="section-pill">Monthly — all time</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Revenue by month</div>
+    <div class="card-sub">Hover any bar for exact figure</div>
+    <div class="legend"><span><span class="leg-line" style="background:#7c5cff"></span>Monthly revenue</span></div>
+    <div class="chart-wrap" style="height:220px"><canvas id="cMonRev" role="img" aria-label="Monthly revenue since launch">Monthly revenue chart.</canvas></div>
+  </div>
+
+  <div class="card green-accent">
+    <div class="card-title">New contacts by month</div>
+    <div class="card-sub">Hover any bar for exact figure</div>
+    <div class="legend"><span><span class="leg-line" style="background:#3ec97c"></span>New contacts</span></div>
+    <div class="chart-wrap" style="height:180px"><canvas id="cMonLead" role="img" aria-label="Monthly new contacts since launch">Monthly contacts chart.</canvas></div>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="section-head">
+    <div class="section-pill">Last 45 days</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Revenue</div>
+      <div class="card-sub">Daily · hover any point</div>
+      <div class="legend"><span><span class="leg-line" style="background:#7c5cff"></span>Daily revenue</span></div>
+      <div class="chart-wrap" style="height:180px"><canvas id="c45Rev" role="img" aria-label="Daily revenue last 45 days">Daily revenue chart.</canvas></div>
+    </div>
+    <div class="card green-accent" style="margin-bottom:0">
+      <div class="card-title">New contacts</div>
+      <div class="card-sub">Daily · hover any point</div>
+      <div class="legend"><span><span class="leg-line" style="background:#3ec97c"></span>Daily contacts</span></div>
+      <div class="chart-wrap" style="height:180px"><canvas id="c45Lead" role="img" aria-label="Daily contacts last 45 days">Daily contacts chart.</canvas></div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="section-head">
+    <div class="section-pill">This week vs last week</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Revenue comparison</div>
+      <div class="card-sub">Day by day · hover to compare</div>
+      <div class="legend">
+        <span><span class="leg-line" style="background:#7c5cff"></span>This week</span>
+        <span><span class="leg-line" style="background:#3d3260"></span>Last week</span>
+      </div>
+      <div class="chart-wrap" style="height:180px"><canvas id="cW7Rev" role="img" aria-label="Revenue this week vs last week">Revenue comparison chart.</canvas></div>
+    </div>
+    <div class="card green-accent" style="margin-bottom:0">
+      <div class="card-title">New contacts comparison</div>
+      <div class="card-sub">Day by day · hover to compare</div>
+      <div class="legend">
+        <span><span class="leg-line" style="background:#3ec97c"></span>This week</span>
+        <span><span class="leg-line" style="background:#1a4032"></span>Last week</span>
+      </div>
+      <div class="chart-wrap" style="height:180px"><canvas id="cW7Lead" role="img" aria-label="Contacts this week vs last week">Contacts comparison chart.</canvas></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Data refreshed daily &nbsp;·&nbsp; Powered by Kajabi &nbsp;·&nbsp; <span>Founding Women</span>
+  </div>
+</div>
+
+<script>
+const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "https://amanda-gibby-peters.mykajabi.com", "instructor_name": "Amanda Gibby Peters", "currency": "USD", "support_email": "amanda@simpleshui.com"}, "generated_at": "2026-06-17 00:00:00", "revenue_monthly": [{"month": "May 25", "amount": 13734, "count": 16}, {"month": "Jun 25", "amount": 29152, "count": 24}, {"month": "Jul 25", "amount": 27323, "count": 21}, {"month": "Aug 25", "amount": 18865, "count": 12}, {"month": "Sep 25", "amount": 26761, "count": 17}, {"month": "Oct 25", "amount": 5105, "count": 7}, {"month": "Nov 25", "amount": 46269, "count": 15}, {"month": "Dec 25", "amount": 23646, "count": 17}, {"month": "Jan 26", "amount": 16222, "count": 22}, {"month": "Feb 26", "amount": 12014, "count": 21}, {"month": "Mar 26", "amount": 20448, "count": 26}, {"month": "Apr 26", "amount": 27406, "count": 30}, {"month": "May 26", "amount": 20498, "count": 30}, {"month": "Jun 26", "amount": 7364, "count": 11}], "contacts_monthly": [{"month": "May 25", "new": 286, "total": 6298}, {"month": "Jun 25", "new": 284, "total": 6582}, {"month": "Jul 25", "new": 138, "total": 6720}, {"month": "Aug 25", "new": 142, "total": 6862}, {"month": "Sep 25", "new": 214, "total": 7076}, {"month": "Oct 25", "new": 19, "total": 7095}, {"month": "Nov 25", "new": 16, "total": 7111}, {"month": "Dec 25", "new": 10, "total": 7121}, {"month": "Jan 26", "new": 20, "total": 7141}, {"month": "Feb 26", "new": 28, "total": 7169}, {"month": "Mar 26", "new": 16, "total": 7185}, {"month": "Apr 26", "new": 93, "total": 7278}, {"month": "May 26", "new": 62, "total": 7340}, {"month": "Jun 26", "new": 25, "total": 7365}], "revenue_by_offer": [{"offer": "The Simple Shui Course", "count": 50, "revenue": 106631}, {"offer": "House Therapy Early Bird | 12 installments", "count": 109, "revenue": 71722}, {"offer": "House Therapy Fall 2026 | Early Bird", "count": 4, "revenue": 31552}, {"offer": "House Therapy Fall 2026 | Early Bird 12 Installments", "count": 31, "revenue": 20398}, {"offer": "House Therapy Alum Retreat February 2026", "count": 5, "revenue": 15000}, {"offer": "House Therapy | 3 Installments", "count": 3, "revenue": 8889}, {"offer": "House Therapy Early Bird | 6 installments", "count": 7, "revenue": 9205}, {"offer": "House Therapy Early Bird | 3 installments", "count": 3, "revenue": 7890}, {"offer": "House Therapy Fall 2026 | Anne Pond", "count": 13, "revenue": 3302}, {"offer": "House Therapy 2025 for Andrea", "count": 1, "revenue": 4606}, {"offer": "House Therapy Fall 2026 | 10 Installments", "count": 8, "revenue": 7192}, {"offer": "House Therapy Alum Retreat – King Bedroom", "count": 4, "revenue": 4800}, {"offer": "House Therapy Fall 2026 | 24 month", "count": 7, "revenue": 2310}, {"offer": "BYOFSC upgrade offer", "count": 3, "revenue": 3897}, {"offer": "1:1 WATCH ME WORK", "count": 4, "revenue": 12000}, {"offer": "TSSC Retreat April 2026", "count": 1, "revenue": 3000}, {"offer": "House Therapy Alum Retreat February 2026 - Early Bird", "count": 1, "revenue": 3000}, {"offer": "1:1 WATCH ME WORK | 3 Installments", "count": 3, "revenue": 3000}, {"offer": "Dre' - Balance for House Therapy", "count": 9, "revenue": 2970}, {"offer": "The Simple Shui Course | 6 Installments", "count": 12, "revenue": 6000}, {"offer": "The Simple Shui Course | 2 Installments", "count": 2, "revenue": 2999}, {"offer": "House Therapy Fall 2026 | 10 Installments for Valeryia", "count": 1, "revenue": 800}, {"offer": "Become Your Own Feng Shui Consultant (12-Month)", "count": 16, "revenue": 2720}, {"offer": "1:1 WATCH ME WORK | 6 Installments", "count": 2, "revenue": 1000}, {"offer": "1:1 WATCH ME WORK | Nichole Rath", "count": 2, "revenue": 1250}, {"offer": "House Therapy Featured Listing", "count": 1, "revenue": 999}, {"offer": "The Simple Shui Course | Joyce Slaughter", "count": 3, "revenue": 999}, {"offer": "The Simple Shui Course | 7 Installments", "count": 4, "revenue": 1716}, {"offer": "House Therapy Therapy Balance | Lisa Burke", "count": 4, "revenue": 820}, {"offer": "House Therapy Deposit | Lisa Burke", "count": 1, "revenue": 1000}, {"offer": "Chi Challenges + Remedies", "count": 4, "revenue": 1332}, {"offer": "Learning the Bagua", "count": 4, "revenue": 1332}, {"offer": "The 5 Chinese Elements", "count": 2, "revenue": 666}, {"offer": "Clutter", "count": 1, "revenue": 333}, {"offer": "Let's Talk About Chi", "count": 1, "revenue": 333}], "daily": {"dates": ["2026-05-04", "2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17"], "revenue": [899, 333, 205, 899, 0, 0, 1000, 658, 0, 1412, 0, 999, 899, 750, 0, 0, 0, 330, 330, 0, 1095, 3499, 2291, 254, 0, 0, 2999, 0, 1316, 0, 330, 899, 0, 205, 899, 0, 0, 1000, 658, 0, 1158, 0, 0, 899, 0], "transactions": [1, 1, 1, 1, 0, 0, 1, 1, 0, 3, 0, 1, 1, 2, 0, 0, 0, 1, 1, 0, 3, 3, 4, 1, 0, 0, 1, 0, 2, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 2, 0, 0, 1, 0], "new_contacts": [2, 33, 7, 2, 0, 0, 0, 3, 1, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 2, 0, 0, 1, 7, 3, 1, 0, 1, 4, 1, 3, 0]}, "total_rev": 294807, "contacts_total": 1353, "forecast": 16837, "mrr_now": 0};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+(function(){
+  const daily = SS.daily || {};
+  const dates = daily.dates || [];
+  const rev   = daily.revenue || [];
+  const leads = daily.new_contacts || [];
+
+  // ── KPI strip ──────────────────────────────────────────────
+  const totalRev = (SS.revenue_monthly || []).reduce((s,m)=>s+(m.amount||0),0);
+  const totalContacts = SS.contacts_total || 0;
+  const rev45   = rev.slice(-45).reduce((a,b)=>a+b,0);
+  const lead45  = leads.slice(-45).reduce((a,b)=>a+b,0);
+
+  const fmt = v => v >= 1000 ? '$' + (v/1000).toFixed(1).replace(/\.0$/,'') + 'k' : '$' + v;
+  document.getElementById('kTotalRev').textContent = '$' + Math.round(totalRev/1000) + 'k';
+  document.getElementById('kTotalContacts').textContent = totalContacts.toLocaleString();
+  document.getElementById('k45Rev').textContent = fmt(Math.round(rev45));
+  document.getElementById('k45Contacts').textContent = lead45.toLocaleString();
+
+  // ── Week slices ─────────────────────────────────────────────
+  const w7dates  = dates.slice(-7);
+  const w7rev    = rev.slice(-7);
+  const w7leads  = leads.slice(-7);
+  const wp7rev   = rev.slice(-14, -7);
+  const wp7leads = leads.slice(-14, -7);
+  const wLabels  = w7dates.map(d => {
+    const dt = new Date(d + 'T00:00:00');
+    return dt.toLocaleDateString('en-GB', {weekday:'short'});
+  });
+
+  // ── Shared chart config ─────────────────────────────────────
+  const G = {color:'rgba(255,255,255,0.05)'};
+  const T = {color:'rgba(180,170,220,0.5)', font:{size:11}};
+  const TIP = {
+    backgroundColor:'rgba(10,8,20,0.95)',
+    titleColor:'#e8e4ff', bodyColor:'#a090c8',
+    padding:12, cornerRadius:12,
+    borderColor:'rgba(124,92,255,.35)', borderWidth:1,
+    displayColors:false
+  };
+  const axBase = {grid:G, ticks:T, border:{display:false}};
+
+  function usdCb(v){ return '$'+(v>=1000?(v/1000).toFixed(1)+'k':v); }
+
+  function lineOpts(yFmt, tipCb){
+    return {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{...TIP, callbacks:tipCb}},
+      scales:{
+        x:{...axBase, ticks:{...T, autoSkip:true, maxTicksLimit:8}},
+        y:{...axBase, ticks:{...T, callback:yFmt}}
+      }
+    };
+  }
+
+  function barOpts(yFmt, tipCb, xExtra){
+    return {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{...TIP, callbacks:tipCb}},
+      scales:{
+        x:{...axBase, ticks:{...T, ...xExtra}},
+        y:{...axBase, ticks:{...T, callback:yFmt}}
+      }
+    };
+  }
+
+  // ── Monthly revenue ─────────────────────────────────────────
+  const mLabels = (SS.revenue_monthly||[]).map(m=>m.month);
+  const mRev    = (SS.revenue_monthly||[]).map(m=>m.amount||0);
+  new Chart(document.getElementById('cMonRev'),{
+    type:'bar',
+    data:{labels:mLabels, datasets:[{label:'Revenue', data:mRev, backgroundColor:'#7c5cff', borderRadius:6, borderSkipped:false}]},
+    options:barOpts(usdCb,{title:t=>t[0].label, label:c=>' $'+Math.round(c.raw).toLocaleString()},{autoSkip:false,maxRotation:45})
+  });
+
+  // ── Monthly contacts ────────────────────────────────────────
+  const cLabels = (SS.contacts_monthly||[]).map(m=>m.month);
+  const cNew    = (SS.contacts_monthly||[]).map(m=>m.new||0);
+  new Chart(document.getElementById('cMonLead'),{
+    type:'bar',
+    data:{labels:cLabels, datasets:[{label:'New contacts', data:cNew, backgroundColor:'#3ec97c', borderRadius:6, borderSkipped:false}]},
+    options:barOpts(v=>v,{title:t=>t[0].label, label:c=>' '+c.raw+' contacts'},{autoSkip:false,maxRotation:45})
+  });
+
+  // ── 45-day revenue line ─────────────────────────────────────
+  new Chart(document.getElementById('c45Rev'),{
+    type:'line',
+    data:{labels:dates.slice(-45), datasets:[{
+      label:'Revenue', data:rev.slice(-45),
+      borderColor:'#7c5cff', backgroundColor:'rgba(124,92,255,0.12)',
+      fill:true, tension:0.4, pointRadius:0,
+      pointHoverRadius:5, pointHoverBackgroundColor:'#7c5cff',
+      pointHoverBorderColor:'#fff', pointHoverBorderWidth:2, borderWidth:2.5
+    }]},
+    options:lineOpts(usdCb,{title:t=>t[0].label, label:c=>' $'+Math.round(c.raw).toLocaleString()})
+  });
+
+  // ── 45-day contacts line ────────────────────────────────────
+  new Chart(document.getElementById('c45Lead'),{
+    type:'line',
+    data:{labels:dates.slice(-45), datasets:[{
+      label:'New contacts', data:leads.slice(-45),
+      borderColor:'#3ec97c', backgroundColor:'rgba(62,201,124,0.12)',
+      fill:true, tension:0.4, pointRadius:0,
+      pointHoverRadius:5, pointHoverBackgroundColor:'#3ec97c',
+      pointHoverBorderColor:'#fff', pointHoverBorderWidth:2, borderWidth:2.5
+    }]},
+    options:lineOpts(v=>v,{title:t=>t[0].label, label:c=>' '+c.raw+' contacts'})
+  });
+
+  // ── 7-day revenue comparison ────────────────────────────────
+  new Chart(document.getElementById('cW7Rev'),{
+    type:'bar',
+    data:{labels:wLabels, datasets:[
+      {label:'This week', data:w7rev,  backgroundColor:'#7c5cff',  borderRadius:6, borderSkipped:false},
+      {label:'Last week', data:wp7rev, backgroundColor:'#3d3260',  borderRadius:6, borderSkipped:false}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{...TIP, displayColors:true, callbacks:{label:c=>c.dataset.label+': $'+Math.round(c.raw).toLocaleString()}}},
+      scales:{x:{...axBase,ticks:T}, y:{...axBase,ticks:{...T,callback:usdCb}}}
+    }
+  });
+
+  // ── 7-day contacts comparison ───────────────────────────────
+  new Chart(document.getElementById('cW7Lead'),{
+    type:'bar',
+    data:{labels:wLabels, datasets:[
+      {label:'This week', data:w7leads,  backgroundColor:'#3ec97c', borderRadius:6, borderSkipped:false},
+      {label:'Last week', data:wp7leads, backgroundColor:'#1a4032', borderRadius:6, borderSkipped:false}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{...TIP, displayColors:true, callbacks:{label:c=>c.dataset.label+': '+c.raw+' contacts'}}},
+      scales:{x:{...axBase,ticks:T}, y:{...axBase,ticks:T}}
+    }
+  });
+})();
+</script>
+</body>
+</html>
