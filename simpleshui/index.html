@@ -322,7 +322,7 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
     return new Chart(document.getElementById(canvasId),{
       type:'bar',
       data:{labels:labels, datasets:[
-        {label:'Recurring', data:recVals, backgroundColor:'#3ec97c', stack:'rev', borderSkipped:false},
+        {label:'Recurring', data:recVals, backgroundColor:'#3ec97c', stack:'rev', borderRadius:6, borderSkipped:false},
         {label:'New', data:newVals, backgroundColor:'#7c5cff', stack:'rev', borderRadius:6, borderSkipped:false}
       ]},
       options:{
