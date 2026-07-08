@@ -28,6 +28,23 @@ a{color:inherit;text-decoration:none}
 .kpi-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .kpi-val{font-size:28px;font-weight:500;color:#f0eeff;line-height:1}
 .kpi-sub{font-size:12px;color:#8b85a8;margin-top:7px}
+.delta{font-weight:600}
+.delta.up{color:#3ec97c}
+.delta.down{color:#ff6b6b}
+.delta.flat{color:#8b85a8}
+
+/* Revenue breakdown table */
+.rev-table{width:100%;border-collapse:collapse;font-size:13px}
+.rev-table th{text-align:right;padding:10px 8px;color:#8b85a8;font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid #2e2a45;white-space:nowrap}
+.rev-table th:first-child{text-align:left}
+.rev-table td{text-align:right;padding:9px 8px;border-bottom:0.5px solid #211f30;color:#e0daf5;white-space:nowrap}
+.rev-table td:first-child{text-align:left;color:#f0eeff}
+.rev-table tr:last-child td{border-bottom:none}
+.rev-table td.new-col{color:#a990ff}
+.rev-table td.rec-col{color:#7fe0a8}
+.rev-bar-track{display:inline-flex;width:100px;height:6px;border-radius:99px;overflow:hidden;background:#1e1c2e;vertical-align:middle}
+.rev-bar-new{background:#7c5cff;height:100%}
+.rev-bar-rec{background:#3ec97c;height:100%}
 
 /* Section headers */
 .section-head{display:flex;align-items:center;gap:12px;margin:0 0 16px}
@@ -90,14 +107,14 @@ a{color:inherit;text-decoration:none}
       <div class="kpi-sub">all time</div>
     </div>
     <div class="kpi">
-      <div class="kpi-label"><span class="kpi-dot" style="background:#7c5cff"></span>Revenue · 45d</div>
-      <div class="kpi-val" id="k45Rev">—</div>
-      <div class="kpi-sub">last 45 days</div>
+      <div class="kpi-label"><span class="kpi-dot" style="background:#7c5cff"></span>Revenue · 30d</div>
+      <div class="kpi-val" id="k30Rev">—</div>
+      <div class="kpi-sub" id="k30RevDelta">last 30 days</div>
     </div>
     <div class="kpi">
-      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>New contacts · 45d</div>
-      <div class="kpi-val" id="k45Contacts">—</div>
-      <div class="kpi-sub">last 45 days</div>
+      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>New contacts · 30d</div>
+      <div class="kpi-val" id="k30Contacts">—</div>
+      <div class="kpi-sub" id="k30ContactsDelta">last 30 days</div>
     </div>
   </div>
 
@@ -122,7 +139,7 @@ a{color:inherit;text-decoration:none}
 
   <div class="spacer"></div>
   <div class="section-head">
-    <div class="section-pill">Last 45 days</div>
+    <div class="section-pill">Last 30 days vs previous 30 days</div>
     <div class="section-line"></div>
   </div>
 
@@ -130,14 +147,41 @@ a{color:inherit;text-decoration:none}
     <div class="card" style="margin-bottom:0">
       <div class="card-title">Revenue</div>
       <div class="card-sub">Daily · hover any point</div>
-      <div class="legend"><span><span class="leg-line" style="background:#7c5cff"></span>Daily revenue</span></div>
-      <div class="chart-wrap" style="height:180px"><canvas id="c45Rev" role="img" aria-label="Daily revenue last 45 days">Daily revenue chart.</canvas></div>
+      <div class="legend">
+        <span><span class="leg-line" style="background:#7c5cff"></span>Last 30 days</span>
+        <span><span class="leg-line" style="background:#3d3260"></span>Previous 30 days</span>
+      </div>
+      <div class="chart-wrap" style="height:180px"><canvas id="c30Rev" role="img" aria-label="Daily revenue, last 30 days vs previous 30 days">Daily revenue chart.</canvas></div>
     </div>
     <div class="card green-accent" style="margin-bottom:0">
       <div class="card-title">New contacts</div>
       <div class="card-sub">Daily · hover any point</div>
-      <div class="legend"><span><span class="leg-line" style="background:#3ec97c"></span>Daily contacts</span></div>
-      <div class="chart-wrap" style="height:180px"><canvas id="c45Lead" role="img" aria-label="Daily contacts last 45 days">Daily contacts chart.</canvas></div>
+      <div class="legend">
+        <span><span class="leg-line" style="background:#3ec97c"></span>Last 30 days</span>
+        <span><span class="leg-line" style="background:#1a4032"></span>Previous 30 days</span>
+      </div>
+      <div class="chart-wrap" style="height:180px"><canvas id="c30Lead" role="img" aria-label="Daily contacts, last 30 days vs previous 30 days">Daily contacts chart.</canvas></div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="section-head">
+    <div class="section-pill">Daily revenue breakdown — last 30 days</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">New vs. recurring revenue</div>
+    <div class="card-sub">New = first-time purchases that day &middot; Recurring = existing subscribers' renewal payments</div>
+    <div class="legend">
+      <span><span class="leg-line" style="background:#7c5cff"></span>New</span>
+      <span><span class="leg-line" style="background:#3ec97c"></span>Recurring</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="rev-table">
+        <thead><tr><th>Date</th><th>Total</th><th>New</th><th>Recurring</th><th>Split</th></tr></thead>
+        <tbody id="revBreakdownBody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -174,7 +218,7 @@ a{color:inherit;text-decoration:none}
 </div>
 
 <script>
-const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "https://amanda-gibby-peters.mykajabi.com", "instructor_name": "Amanda Gibby Peters", "currency": "USD", "support_email": "amanda@simpleshui.com"}, "generated_at": "2026-07-08 10:15:24", "revenue_monthly": [{"month": "Jul 22", "amount": 3996, "count": 6}, {"month": "Aug 22", "amount": 5994, "count": 6}, {"month": "Sep 22", "amount": 999, "count": 1}, {"month": "Oct 22", "amount": 2997, "count": 3}, {"month": "Nov 22", "amount": 3996, "count": 4}, {"month": "Dec 22", "amount": 1998, "count": 2}, {"month": "Jan 23", "amount": 13108, "count": 8}, {"month": "Feb 23", "amount": 11359, "count": 7}, {"month": "Mar 23", "amount": 4411, "count": 5}, {"month": "Apr 23", "amount": 3112, "count": 4}, {"month": "May 23", "amount": 7009, "count": 7}, {"month": "Jun 23", "amount": 17922, "count": 15}, {"month": "Jul 23", "amount": 2334, "count": 3}, {"month": "Aug 23", "amount": 8829, "count": 8}, {"month": "Sep 23", "amount": 2334, "count": 3}, {"month": "Oct 23", "amount": 13456, "count": 12}, {"month": "Nov 23", "amount": 8550, "count": 10}, {"month": "Dec 23", "amount": 10029, "count": 10}, {"month": "Jan 24", "amount": 10029, "count": 10}, {"month": "Feb 24", "amount": 6132, "count": 7}, {"month": "Mar 24", "amount": 10128, "count": 11}, {"month": "Apr 24", "amount": 21720, "count": 19}, {"month": "May 24", "amount": 12627, "count": 12}, {"month": "Jun 24", "amount": 7431, "count": 8}, {"month": "Jul 24", "amount": 24456, "count": 16}, {"month": "Aug 24", "amount": 57654, "count": 59}, {"month": "Sep 24", "amount": 22777, "count": 25}, {"month": "Oct 24", "amount": 10864, "count": 15}, {"month": "Nov 24", "amount": 20713, "count": 18}, {"month": "Dec 24", "amount": 11317, "count": 13}, {"month": "Jan 25", "amount": 10760, "count": 14}, {"month": "Feb 25", "amount": 7945, "count": 11}, {"month": "Mar 25", "amount": 10602, "count": 12}, {"month": "Apr 25", "amount": 20890, "count": 19}, {"month": "May 25", "amount": 14392, "count": 17}, {"month": "Jun 25", "amount": 29152, "count": 24}, {"month": "Jul 25", "amount": 27323, "count": 21}, {"month": "Aug 25", "amount": 18865, "count": 12}, {"month": "Sep 25", "amount": 26761, "count": 17}, {"month": "Oct 25", "amount": 5105, "count": 7}, {"month": "Nov 25", "amount": 46269, "count": 15}, {"month": "Dec 25", "amount": 23646, "count": 17}, {"month": "Jan 26", "amount": 16222, "count": 22}, {"month": "Feb 26", "amount": 12014, "count": 21}, {"month": "Mar 26", "amount": 20448, "count": 26}, {"month": "Apr 26", "amount": 27406, "count": 30}, {"month": "May 26", "amount": 20498, "count": 30}, {"month": "Jun 26", "amount": 12088, "count": 21}, {"month": "Jul 26", "amount": 4482, "count": 8}], "contacts_monthly": [{"month": "Jul 22", "new": 1793, "total": 1794}, {"month": "Aug 22", "new": 131, "total": 1925}, {"month": "Sep 22", "new": 82, "total": 2007}, {"month": "Oct 22", "new": 142, "total": 2149}, {"month": "Nov 22", "new": 223, "total": 2372}, {"month": "Dec 22", "new": 376, "total": 2748}, {"month": "Jan 23", "new": 314, "total": 3062}, {"month": "Feb 23", "new": 518, "total": 3580}, {"month": "Mar 23", "new": 620, "total": 4200}, {"month": "Apr 23", "new": 223, "total": 4423}, {"month": "May 23", "new": 49, "total": 4472}, {"month": "Jun 23", "new": 41, "total": 4513}, {"month": "Jul 23", "new": 26, "total": 4539}, {"month": "Aug 23", "new": 33, "total": 4572}, {"month": "Sep 23", "new": 29, "total": 4601}, {"month": "Oct 23", "new": 94, "total": 4695}, {"month": "Nov 23", "new": 24, "total": 4719}, {"month": "Dec 23", "new": 43, "total": 4762}, {"month": "Jan 24", "new": 53, "total": 4815}, {"month": "Feb 24", "new": 70, "total": 4885}, {"month": "Mar 24", "new": 28, "total": 4913}, {"month": "Apr 24", "new": 35, "total": 4948}, {"month": "May 24", "new": 28, "total": 4976}, {"month": "Jun 24", "new": 20, "total": 4996}, {"month": "Jul 24", "new": 15, "total": 5017}, {"month": "Aug 24", "new": 127, "total": 5144}, {"month": "Sep 24", "new": 29, "total": 5173}, {"month": "Oct 24", "new": 78, "total": 5251}, {"month": "Nov 24", "new": 29, "total": 5280}, {"month": "Dec 24", "new": 93, "total": 5373}, {"month": "Jan 25", "new": 47, "total": 5420}, {"month": "Feb 25", "new": 41, "total": 5461}, {"month": "Mar 25", "new": 41, "total": 5502}, {"month": "Apr 25", "new": 376, "total": 5878}, {"month": "May 25", "new": 420, "total": 6298}, {"month": "Jun 25", "new": 284, "total": 6582}, {"month": "Jul 25", "new": 138, "total": 6720}, {"month": "Aug 25", "new": 142, "total": 6862}, {"month": "Sep 25", "new": 214, "total": 7076}, {"month": "Oct 25", "new": 19, "total": 7095}, {"month": "Nov 25", "new": 16, "total": 7111}, {"month": "Dec 25", "new": 10, "total": 7121}, {"month": "Jan 26", "new": 20, "total": 7141}, {"month": "Feb 26", "new": 28, "total": 7169}, {"month": "Mar 26", "new": 16, "total": 7185}, {"month": "Apr 26", "new": 93, "total": 7278}, {"month": "May 26", "new": 62, "total": 7340}, {"month": "Jun 26", "new": 67, "total": 7407}, {"month": "Jul 26", "new": 1, "total": 7408}], "revenue_by_offer": [{"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 6, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 26, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 9, "revenue": 0}, {"offer": "", "count": 32, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 154, "revenue": 0}, {"offer": "", "count": 12, "revenue": 0}, {"offer": "", "count": 17, "revenue": 0}, {"offer": "", "count": 10, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 8, "revenue": 0}, {"offer": "", "count": 14, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 34, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 16, "revenue": 0}, {"offer": "", "count": 45, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 197, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 12, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 6, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}], "daily": {"tz": "US Central", "dates": ["2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08"], "revenue": [0, 0, 330, 330, 0, 1095, 3499, 2291, 254, 0, 0, 2999, 0, 1316, 0, 330, 899, 0, 205, 899, 0, 0, 1000, 658, 0, 1158, 0, 0, 899, 750, 0, 0, 0, 0, 0, 0, 1016, 1000, 1300, 0, 0, 658, 0, 1649, 500, 330, 899, 0, 205, 899, 0], "transactions": [0, 0, 1, 1, 0, 3, 3, 4, 1, 0, 0, 1, 0, 2, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 2, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 3, 2, 2, 0, 0, 1, 0, 3, 1, 1, 1, 0, 1, 1, 0], "new_contacts": [0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 2, 0, 0, 1, 7, 3, 1, 0, 1, 4, 1, 4, 0, 1, 3, 0, 0, 5, 8, 6, 6, 1, 4, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], "new_customers": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0]}, "total_rev": 693149, "contacts_total": 7401, "forecast": 16808, "mrr_now": 0};
+const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "https://amanda-gibby-peters.mykajabi.com", "instructor_name": "Amanda Gibby Peters", "currency": "USD", "support_email": "amanda@simpleshui.com"}, "generated_at": "2026-07-08 10:15:24", "revenue_monthly": [{"month": "Jul 22", "amount": 3996, "count": 6}, {"month": "Aug 22", "amount": 5994, "count": 6}, {"month": "Sep 22", "amount": 999, "count": 1}, {"month": "Oct 22", "amount": 2997, "count": 3}, {"month": "Nov 22", "amount": 3996, "count": 4}, {"month": "Dec 22", "amount": 1998, "count": 2}, {"month": "Jan 23", "amount": 13108, "count": 8}, {"month": "Feb 23", "amount": 11359, "count": 7}, {"month": "Mar 23", "amount": 4411, "count": 5}, {"month": "Apr 23", "amount": 3112, "count": 4}, {"month": "May 23", "amount": 7009, "count": 7}, {"month": "Jun 23", "amount": 17922, "count": 15}, {"month": "Jul 23", "amount": 2334, "count": 3}, {"month": "Aug 23", "amount": 8829, "count": 8}, {"month": "Sep 23", "amount": 2334, "count": 3}, {"month": "Oct 23", "amount": 13456, "count": 12}, {"month": "Nov 23", "amount": 8550, "count": 10}, {"month": "Dec 23", "amount": 10029, "count": 10}, {"month": "Jan 24", "amount": 10029, "count": 10}, {"month": "Feb 24", "amount": 6132, "count": 7}, {"month": "Mar 24", "amount": 10128, "count": 11}, {"month": "Apr 24", "amount": 21720, "count": 19}, {"month": "May 24", "amount": 12627, "count": 12}, {"month": "Jun 24", "amount": 7431, "count": 8}, {"month": "Jul 24", "amount": 24456, "count": 16}, {"month": "Aug 24", "amount": 57654, "count": 59}, {"month": "Sep 24", "amount": 22777, "count": 25}, {"month": "Oct 24", "amount": 10864, "count": 15}, {"month": "Nov 24", "amount": 20713, "count": 18}, {"month": "Dec 24", "amount": 11317, "count": 13}, {"month": "Jan 25", "amount": 10760, "count": 14}, {"month": "Feb 25", "amount": 7945, "count": 11}, {"month": "Mar 25", "amount": 10602, "count": 12}, {"month": "Apr 25", "amount": 20890, "count": 19}, {"month": "May 25", "amount": 14392, "count": 17}, {"month": "Jun 25", "amount": 29152, "count": 24}, {"month": "Jul 25", "amount": 27323, "count": 21}, {"month": "Aug 25", "amount": 18865, "count": 12}, {"month": "Sep 25", "amount": 26761, "count": 17}, {"month": "Oct 25", "amount": 5105, "count": 7}, {"month": "Nov 25", "amount": 46269, "count": 15}, {"month": "Dec 25", "amount": 23646, "count": 17}, {"month": "Jan 26", "amount": 16222, "count": 22}, {"month": "Feb 26", "amount": 12014, "count": 21}, {"month": "Mar 26", "amount": 20448, "count": 26}, {"month": "Apr 26", "amount": 27406, "count": 30}, {"month": "May 26", "amount": 20498, "count": 30}, {"month": "Jun 26", "amount": 12088, "count": 21}, {"month": "Jul 26", "amount": 4482, "count": 8}], "contacts_monthly": [{"month": "Jul 22", "new": 1793, "total": 1794}, {"month": "Aug 22", "new": 131, "total": 1925}, {"month": "Sep 22", "new": 82, "total": 2007}, {"month": "Oct 22", "new": 142, "total": 2149}, {"month": "Nov 22", "new": 223, "total": 2372}, {"month": "Dec 22", "new": 376, "total": 2748}, {"month": "Jan 23", "new": 314, "total": 3062}, {"month": "Feb 23", "new": 518, "total": 3580}, {"month": "Mar 23", "new": 620, "total": 4200}, {"month": "Apr 23", "new": 223, "total": 4423}, {"month": "May 23", "new": 49, "total": 4472}, {"month": "Jun 23", "new": 41, "total": 4513}, {"month": "Jul 23", "new": 26, "total": 4539}, {"month": "Aug 23", "new": 33, "total": 4572}, {"month": "Sep 23", "new": 29, "total": 4601}, {"month": "Oct 23", "new": 94, "total": 4695}, {"month": "Nov 23", "new": 24, "total": 4719}, {"month": "Dec 23", "new": 43, "total": 4762}, {"month": "Jan 24", "new": 53, "total": 4815}, {"month": "Feb 24", "new": 70, "total": 4885}, {"month": "Mar 24", "new": 28, "total": 4913}, {"month": "Apr 24", "new": 35, "total": 4948}, {"month": "May 24", "new": 28, "total": 4976}, {"month": "Jun 24", "new": 20, "total": 4996}, {"month": "Jul 24", "new": 15, "total": 5017}, {"month": "Aug 24", "new": 127, "total": 5144}, {"month": "Sep 24", "new": 29, "total": 5173}, {"month": "Oct 24", "new": 78, "total": 5251}, {"month": "Nov 24", "new": 29, "total": 5280}, {"month": "Dec 24", "new": 93, "total": 5373}, {"month": "Jan 25", "new": 47, "total": 5420}, {"month": "Feb 25", "new": 41, "total": 5461}, {"month": "Mar 25", "new": 41, "total": 5502}, {"month": "Apr 25", "new": 376, "total": 5878}, {"month": "May 25", "new": 420, "total": 6298}, {"month": "Jun 25", "new": 284, "total": 6582}, {"month": "Jul 25", "new": 138, "total": 6720}, {"month": "Aug 25", "new": 142, "total": 6862}, {"month": "Sep 25", "new": 214, "total": 7076}, {"month": "Oct 25", "new": 19, "total": 7095}, {"month": "Nov 25", "new": 16, "total": 7111}, {"month": "Dec 25", "new": 10, "total": 7121}, {"month": "Jan 26", "new": 20, "total": 7141}, {"month": "Feb 26", "new": 28, "total": 7169}, {"month": "Mar 26", "new": 16, "total": 7185}, {"month": "Apr 26", "new": 93, "total": 7278}, {"month": "May 26", "new": 62, "total": 7340}, {"month": "Jun 26", "new": 67, "total": 7407}, {"month": "Jul 26", "new": 1, "total": 7408}], "revenue_by_offer": [{"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 6, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 26, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 9, "revenue": 0}, {"offer": "", "count": 32, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 154, "revenue": 0}, {"offer": "", "count": 12, "revenue": 0}, {"offer": "", "count": 17, "revenue": 0}, {"offer": "", "count": 10, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 8, "revenue": 0}, {"offer": "", "count": 14, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 34, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 16, "revenue": 0}, {"offer": "", "count": 45, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 197, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 12, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 6, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}], "daily": {"tz": "US Central", "dates": ["2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08"], "revenue": [0, 0, 330, 330, 0, 1095, 3499, 2291, 254, 0, 0, 2999, 0, 1316, 0, 330, 899, 0, 205, 899, 0, 0, 1000, 658, 0, 1158, 0, 0, 899, 750, 0, 0, 0, 0, 0, 0, 1016, 1000, 1300, 0, 0, 658, 0, 1649, 500, 330, 899, 0, 205, 899, 0], "transactions": [0, 0, 1, 1, 0, 3, 3, 4, 1, 0, 0, 1, 0, 2, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 2, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 3, 2, 2, 0, 0, 1, 0, 3, 1, 1, 1, 0, 1, 1, 0], "new_contacts": [0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 2, 0, 0, 1, 7, 3, 1, 0, 1, 4, 1, 4, 0, 1, 3, 0, 0, 5, 8, 6, 6, 1, 4, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0], "new_customers": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0]}, "total_rev": 693149, "contacts_total": 7401, "forecast": 14940, "mrr_now": 0};
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
@@ -187,14 +231,29 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
   // ── KPI strip ──────────────────────────────────────────────
   const totalRev = (SS.revenue_monthly || []).reduce((s,m)=>s+(m.amount||0),0);
   const totalContacts = SS.contacts_total || 0;
-  const rev45   = rev.slice(-45).reduce((a,b)=>a+b,0);
-  const lead45  = leads.slice(-45).reduce((a,b)=>a+b,0);
+  const rev30      = rev.slice(-30).reduce((a,b)=>a+b,0);
+  const lead30     = leads.slice(-30).reduce((a,b)=>a+b,0);
+  const revPrev30  = rev.slice(-60,-30).reduce((a,b)=>a+b,0);
+  const leadPrev30 = leads.slice(-60,-30).reduce((a,b)=>a+b,0);
 
   const fmt = v => v >= 1000 ? '$' + (v/1000).toFixed(1).replace(/\.0$/,'') + 'k' : '$' + v;
+
+  function deltaLabel(cur, prev){
+    if (!prev) return 'last 30 days';
+    const diff = cur - prev;
+    const pct  = (diff / prev) * 100;
+    if (Math.abs(pct) < 0.5) return '<span class="delta flat">flat vs prior 30d</span>';
+    const cls = diff >= 0 ? 'up' : 'down';
+    const arrow = diff >= 0 ? '▲' : '▼';
+    return `<span class="delta ${cls}">${arrow} ${Math.abs(pct).toFixed(0)}% vs prior 30d</span>`;
+  }
+
   document.getElementById('kTotalRev').textContent = '$' + Math.round(totalRev/1000) + 'k';
   document.getElementById('kTotalContacts').textContent = totalContacts.toLocaleString();
-  document.getElementById('k45Rev').textContent = fmt(Math.round(rev45));
-  document.getElementById('k45Contacts').textContent = lead45.toLocaleString();
+  document.getElementById('k30Rev').textContent = fmt(Math.round(rev30));
+  document.getElementById('k30Contacts').textContent = lead30.toLocaleString();
+  document.getElementById('k30RevDelta').innerHTML = deltaLabel(rev30, revPrev30);
+  document.getElementById('k30ContactsDelta').innerHTML = deltaLabel(lead30, leadPrev30);
 
   // ── Week slices ─────────────────────────────────────────────
   const w7dates  = dates.slice(-7);
@@ -263,31 +322,97 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
     options:barOpts(v=>v,{title:t=>t[0].label, label:c=>' '+c.raw+' contacts'},{autoSkip:false,maxRotation:45})
   });
 
-  // ── 45-day revenue line ─────────────────────────────────────
-  new Chart(document.getElementById('c45Rev'),{
+  // ── 30-day vs previous-30-day comparison (line-index aligned, not by calendar date) ──
+  const day30Labels = Array.from({length:30}, (_,i) => 'Day ' + (i+1));
+  const rev30d       = rev.slice(-30);
+  const revPrev30d   = rev.slice(-60,-30);
+  const lead30d      = leads.slice(-30);
+  const leadPrev30d  = leads.slice(-60,-30);
+
+  function comparisonOpts(yFmt, unitLabel){
+    return {
+      responsive:true, maintainAspectRatio:false,
+      interaction:{mode:'index', intersect:false},
+      plugins:{legend:{display:false}, tooltip:{...TIP, displayColors:true, callbacks:{
+        title:t=>t[0].label,
+        label:c=>c.dataset.label+': '+(unitLabel==='usd' ? '$'+Math.round(c.raw).toLocaleString() : c.raw+' contacts')
+      }}},
+      scales:{
+        x:{...axBase, ticks:{...T, autoSkip:true, maxTicksLimit:8}},
+        y:{...axBase, ticks:{...T, callback:yFmt}}
+      }
+    };
+  }
+
+  // ── 30-day revenue: current vs previous ──────────────────────
+  new Chart(document.getElementById('c30Rev'),{
     type:'line',
-    data:{labels:dates.slice(-45), datasets:[{
-      label:'Revenue', data:rev.slice(-45),
-      borderColor:'#7c5cff', backgroundColor:'rgba(124,92,255,0.12)',
-      fill:true, tension:0.4, pointRadius:0,
-      pointHoverRadius:5, pointHoverBackgroundColor:'#7c5cff',
-      pointHoverBorderColor:'#fff', pointHoverBorderWidth:2, borderWidth:2.5
-    }]},
-    options:lineOpts(usdCb,{title:t=>t[0].label, label:c=>' $'+Math.round(c.raw).toLocaleString()})
+    data:{labels:day30Labels, datasets:[
+      {
+        label:'Last 30 days', data:rev30d,
+        borderColor:'#7c5cff', backgroundColor:'rgba(124,92,255,0.12)',
+        fill:true, tension:0.4, pointRadius:0,
+        pointHoverRadius:5, pointHoverBackgroundColor:'#7c5cff',
+        pointHoverBorderColor:'#fff', pointHoverBorderWidth:2, borderWidth:2.5
+      },
+      {
+        label:'Previous 30 days', data:revPrev30d,
+        borderColor:'#3d3260', backgroundColor:'transparent',
+        borderDash:[5,4], fill:false, tension:0.4, pointRadius:0,
+        pointHoverRadius:4, pointHoverBackgroundColor:'#3d3260',
+        pointHoverBorderColor:'#fff', pointHoverBorderWidth:2, borderWidth:2
+      }
+    ]},
+    options:comparisonOpts(usdCb,'usd')
   });
 
-  // ── 45-day contacts line ────────────────────────────────────
-  new Chart(document.getElementById('c45Lead'),{
+  // ── 30-day new contacts: current vs previous ─────────────────
+  new Chart(document.getElementById('c30Lead'),{
     type:'line',
-    data:{labels:dates.slice(-45), datasets:[{
-      label:'New contacts', data:leads.slice(-45),
-      borderColor:'#3ec97c', backgroundColor:'rgba(62,201,124,0.12)',
-      fill:true, tension:0.4, pointRadius:0,
-      pointHoverRadius:5, pointHoverBackgroundColor:'#3ec97c',
-      pointHoverBorderColor:'#fff', pointHoverBorderWidth:2, borderWidth:2.5
-    }]},
-    options:lineOpts(v=>v,{title:t=>t[0].label, label:c=>' '+c.raw+' contacts'})
+    data:{labels:day30Labels, datasets:[
+      {
+        label:'Last 30 days', data:lead30d,
+        borderColor:'#3ec97c', backgroundColor:'rgba(62,201,124,0.12)',
+        fill:true, tension:0.4, pointRadius:0,
+        pointHoverRadius:5, pointHoverBackgroundColor:'#3ec97c',
+        pointHoverBorderColor:'#fff', pointHoverBorderWidth:2, borderWidth:2.5
+      },
+      {
+        label:'Previous 30 days', data:leadPrev30d,
+        borderColor:'#1a4032', backgroundColor:'transparent',
+        borderDash:[5,4], fill:false, tension:0.4, pointRadius:0,
+        pointHoverRadius:4, pointHoverBackgroundColor:'#1a4032',
+        pointHoverBorderColor:'#fff', pointHoverBorderWidth:2, borderWidth:2
+      }
+    ]},
+    options:comparisonOpts(v=>v,'count')
   });
+
+  // ── Daily revenue breakdown: new vs recurring, last 30 days ──
+  (function renderRevBreakdown(){
+    const tbody = document.getElementById('revBreakdownBody');
+    if (!tbody) return;
+    const newRevArr = daily.new_revenue || [];
+    const recRevArr = daily.recurring_revenue || [];
+    const n = dates.length;
+    const rows = [];
+    for (let i = n - 1; i >= Math.max(0, n - 30); i--) {
+      const total = rev[i] || 0;
+      const nRev  = newRevArr[i] || 0;
+      const rRev  = recRevArr[i] != null ? recRevArr[i] : (total - nRev);
+      const dObj  = new Date(dates[i] + 'T00:00:00');
+      const label = dObj.toLocaleDateString('en-GB', {day:'numeric', month:'short'});
+      const newPct = total > 0 ? Math.max(0, Math.min(100, Math.round((nRev / total) * 100))) : 0;
+      rows.push(`<tr>
+        <td>${label}</td>
+        <td>$${Math.round(total).toLocaleString()}</td>
+        <td class="new-col">$${Math.round(nRev).toLocaleString()}</td>
+        <td class="rec-col">$${Math.round(rRev).toLocaleString()}</td>
+        <td><span class="rev-bar-track"><span class="rev-bar-new" style="width:${newPct}%"></span><span class="rev-bar-rec" style="width:${100-newPct}%"></span></span></td>
+      </tr>`);
+    }
+    tbody.innerHTML = rows.join('') || '<tr><td colspan="5" style="text-align:center;color:#8b85a8">No data yet.</td></tr>';
+  })();
 
   // ── 7-day revenue comparison ────────────────────────────────
   new Chart(document.getElementById('cW7Rev'),{
