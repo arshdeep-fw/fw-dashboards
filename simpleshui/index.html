@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f14;color:#e8e4ff;line-height:1.5}
 a{color:inherit;text-decoration:none}
-.page{padding:36px 32px;max-width:980px;margin:0 auto}
+.page{padding:36px 32px;max-width:none;width:100%}
 
 /* Header */
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;flex-wrap:wrap;gap:16px}
@@ -21,11 +21,8 @@ a{color:inherit;text-decoration:none}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 
 /* KPI strip */
-.kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:36px}
+.kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,220px));gap:12px;margin-bottom:36px}
 @media(max-width:640px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
-.pending-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}
-@media(max-width:900px){.pending-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:640px){.pending-row{grid-template-columns:repeat(2,1fr)}}
 .kpi{background:#1a1825;border:0.5px solid #2e2a45;border-radius:20px;padding:20px 22px}
 .kpi-label{font-size:11px;color:#8b85a8;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.05em}
 .kpi-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -58,8 +55,10 @@ a{color:inherit;text-decoration:none}
 .card.green-accent{border-left-color:rgba(62,201,124,.4)}
 .card-title{font-size:15px;font-weight:500;color:#f0eeff;margin-bottom:5px}
 .card-sub{font-size:12px;color:#8b85a8;margin-bottom:18px}
-.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:18px}
-@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(440px,680px));gap:16px;margin-bottom:18px}
+@media(max-width:640px){.card-grid{grid-template-columns:1fr}}
+.card-grid-wide{display:grid;grid-template-columns:repeat(auto-fit,minmax(560px,860px));gap:16px;margin-bottom:18px}
+@media(max-width:640px){.card-grid-wide{grid-template-columns:1fr}}
 
 /* Chart */
 .chart-wrap{position:relative;width:100%}
@@ -117,6 +116,36 @@ a{color:inherit;text-decoration:none}
       <div class="kpi-val" id="k30Contacts">—</div>
       <div class="kpi-sub" id="k30ContactsDelta">last 30 days</div>
     </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>New contacts · 7d</div>
+      <div class="kpi-val" id="k7Contacts">—</div>
+      <div class="kpi-sub" id="k7ContactsDelta">last 7 days</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#ff6fa5"></span>Total pending</div>
+      <div class="kpi-val" id="pendTotal">—</div>
+      <div class="kpi-sub">all future installments</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#ff6fa5"></span>Pending · 7d</div>
+      <div class="kpi-val" id="pend7d">—</div>
+      <div class="kpi-sub">due within a week</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#ff6fa5"></span>Pending · 30d</div>
+      <div class="kpi-val" id="pend30d">—</div>
+      <div class="kpi-sub">due within a month</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#ff6fa5"></span>Pending · 6mo</div>
+      <div class="kpi-val" id="pend6mo">—</div>
+      <div class="kpi-sub">due within 6 months</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label"><span class="kpi-dot" style="background:#ff6fa5"></span>Pending · 1yr</div>
+      <div class="kpi-val" id="pend1yr">—</div>
+      <div class="kpi-sub">due within a year</div>
+    </div>
   </div>
 
   <div class="section-head">
@@ -124,21 +153,24 @@ a{color:inherit;text-decoration:none}
     <div class="section-line"></div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Revenue by month</div>
-    <div class="card-sub">Hover any bar for the new / recurring split</div>
-    <div class="legend">
-      <span><span class="leg-line" style="background:#7c5cff"></span>New</span>
-      <span><span class="leg-line" style="background:#3ec97c"></span>Recurring</span>
+  <div class="card-grid-wide">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Revenue by month</div>
+      <div class="card-sub">Hover any bar for the split &middot; pink = forecasted, not yet collected</div>
+      <div class="legend">
+        <span><span class="leg-line" style="background:#7c5cff"></span>New</span>
+        <span><span class="leg-line" style="background:#3ec97c"></span>Recurring</span>
+        <span><span class="leg-line" style="background:#ff6fa5"></span>Pending</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="cMonRev" role="img" aria-label="Monthly revenue since launch plus a 6-month forecast, each bar split into new revenue, recurring revenue, and forecasted pending revenue">Monthly revenue chart, split new vs recurring vs pending forecast.</canvas></div>
     </div>
-    <div class="chart-wrap" style="height:220px"><canvas id="cMonRev" role="img" aria-label="Monthly revenue since launch, each bar split into new revenue and recurring revenue">Monthly revenue chart, split new vs recurring.</canvas></div>
-  </div>
 
-  <div class="card green-accent">
-    <div class="card-title">New contacts by month</div>
-    <div class="card-sub">Hover any bar for exact figure</div>
-    <div class="legend"><span><span class="leg-line" style="background:#3ec97c"></span>New contacts</span></div>
-    <div class="chart-wrap" style="height:180px"><canvas id="cMonLead" role="img" aria-label="Monthly new contacts since launch">Monthly contacts chart.</canvas></div>
+    <div class="card green-accent" style="margin-bottom:0">
+      <div class="card-title">New contacts by month</div>
+      <div class="card-sub">Hover any bar for exact figure</div>
+      <div class="legend"><span><span class="leg-line" style="background:#3ec97c"></span>New contacts</span></div>
+      <div class="chart-wrap" style="height:180px"><canvas id="cMonLead" role="img" aria-label="Monthly new contacts since launch">Monthly contacts chart.</canvas></div>
+    </div>
   </div>
 
   <div class="spacer"></div>
@@ -147,83 +179,18 @@ a{color:inherit;text-decoration:none}
     <div class="section-line"></div>
   </div>
 
-  <div class="card">
-    <div class="card-title">Revenue by day</div>
-    <div class="card-sub">Hover any bar for the new / recurring split</div>
-    <div class="legend">
-      <span><span class="leg-line" style="background:#7c5cff"></span>New</span>
-      <span><span class="leg-line" style="background:#3ec97c"></span>Recurring</span>
-    </div>
-    <div class="chart-wrap" style="height:220px"><canvas id="cDayRev" role="img" aria-label="Daily revenue for the last 30 days, each bar split into new revenue and recurring revenue">Daily revenue chart, split new vs recurring.</canvas></div>
-  </div>
-
-  <div class="spacer"></div>
-  <div class="section-head">
-    <div class="section-pill">Recent purchases</div>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Last 30 new purchases</div>
-    <div class="card-sub">First-time purchases only &middot; no contact details shown</div>
-    <div style="overflow-x:auto">
-      <table class="txn-table">
-        <thead><tr><th>Date</th><th>Name</th><th>Purchased</th><th>Amount</th></tr></thead>
-        <tbody id="txnBody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="spacer"></div>
-  <div class="section-head">
-    <div class="section-pill">Pending revenue — active payment plans</div>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="pending-row">
-    <div class="kpi">
-      <div class="kpi-label"><span class="kpi-dot" style="background:#7c5cff"></span>Total pending</div>
-      <div class="kpi-val" id="pendTotal">—</div>
-      <div class="kpi-sub">all future installments</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>Next 7 days</div>
-      <div class="kpi-val" id="pend7d">—</div>
-      <div class="kpi-sub">due within a week</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>Next 30 days</div>
-      <div class="kpi-val" id="pend30d">—</div>
-      <div class="kpi-sub">due within a month</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>Next 6 months</div>
-      <div class="kpi-val" id="pend6mo">—</div>
-      <div class="kpi-sub">due within 6 months</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label"><span class="kpi-dot" style="background:#3ec97c"></span>Next 1 year</div>
-      <div class="kpi-val" id="pend1yr">—</div>
-      <div class="kpi-sub">due within a year</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Pending revenue by month</div>
-    <div class="card-sub">Scheduled installment collections, next 6 months</div>
-    <div class="legend"><span><span class="leg-line" style="background:#7c5cff"></span>Pending revenue</span></div>
-    <div class="chart-wrap" style="height:200px"><canvas id="cPendMonth" role="img" aria-label="Pending revenue expected per month for the next 6 months">Pending revenue by month chart.</canvas></div>
-  </div>
-
-  <div class="spacer"></div>
-  <div class="section-head">
-    <div class="section-pill">Last 30 days vs previous 30 days</div>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="grid2">
+  <div class="card-grid">
     <div class="card" style="margin-bottom:0">
-      <div class="card-title">Revenue</div>
+      <div class="card-title">Revenue by day</div>
+      <div class="card-sub">Hover any bar for the new / recurring split</div>
+      <div class="legend">
+        <span><span class="leg-line" style="background:#7c5cff"></span>New</span>
+        <span><span class="leg-line" style="background:#3ec97c"></span>Recurring</span>
+      </div>
+      <div class="chart-wrap" style="height:220px"><canvas id="cDayRev" role="img" aria-label="Daily revenue for the last 30 days, each bar split into new revenue and recurring revenue">Daily revenue chart, split new vs recurring.</canvas></div>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Revenue 30D</div>
       <div class="card-sub">Daily · hover any point</div>
       <div class="legend">
         <span><span class="leg-line" style="background:#7c5cff"></span>Last 30 days</span>
@@ -232,7 +199,7 @@ a{color:inherit;text-decoration:none}
       <div class="chart-wrap" style="height:180px"><canvas id="c30Rev" role="img" aria-label="Daily revenue, last 30 days vs previous 30 days">Daily revenue chart.</canvas></div>
     </div>
     <div class="card green-accent" style="margin-bottom:0">
-      <div class="card-title">New contacts</div>
+      <div class="card-title">New contacts 30D</div>
       <div class="card-sub">Daily · hover any point</div>
       <div class="legend">
         <span><span class="leg-line" style="background:#3ec97c"></span>Last 30 days</span>
@@ -240,17 +207,8 @@ a{color:inherit;text-decoration:none}
       </div>
       <div class="chart-wrap" style="height:180px"><canvas id="c30Lead" role="img" aria-label="Daily contacts, last 30 days vs previous 30 days">Daily contacts chart.</canvas></div>
     </div>
-  </div>
-
-  <div class="spacer"></div>
-  <div class="section-head">
-    <div class="section-pill">This week vs last week</div>
-    <div class="section-line"></div>
-  </div>
-
-  <div class="grid2">
     <div class="card" style="margin-bottom:0">
-      <div class="card-title">Revenue comparison</div>
+      <div class="card-title">Revenue comparison 7D</div>
       <div class="card-sub">Day by day · hover to compare</div>
       <div class="legend">
         <span><span class="leg-line" style="background:#7c5cff"></span>This week</span>
@@ -259,7 +217,7 @@ a{color:inherit;text-decoration:none}
       <div class="chart-wrap" style="height:180px"><canvas id="cW7Rev" role="img" aria-label="Revenue this week vs last week">Revenue comparison chart.</canvas></div>
     </div>
     <div class="card green-accent" style="margin-bottom:0">
-      <div class="card-title">New contacts comparison</div>
+      <div class="card-title">New contacts comparison 7D</div>
       <div class="card-sub">Day by day · hover to compare</div>
       <div class="legend">
         <span><span class="leg-line" style="background:#3ec97c"></span>This week</span>
@@ -269,13 +227,32 @@ a{color:inherit;text-decoration:none}
     </div>
   </div>
 
+  <div class="spacer"></div>
+  <div class="section-head">
+    <div class="section-pill">Recent purchases</div>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Last 30 new purchases</div>
+      <div class="card-sub">First-time purchases only &middot; no contact details shown</div>
+      <div style="overflow-x:auto">
+        <table class="txn-table">
+          <thead><tr><th>Date</th><th>Name</th><th>Purchased</th><th>Amount</th></tr></thead>
+          <tbody id="txnBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="footer">
     Powered by Kajabi &nbsp;·&nbsp; <span>Founding Women</span>
   </div>
 </div>
 
 <script>
-const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "https://amanda-gibby-peters.mykajabi.com", "instructor_name": "Amanda Gibby Peters", "currency": "USD", "support_email": "amanda@simpleshui.com"}, "generated_at": "2026-07-09 17:47:33", "revenue_monthly": [{"month": "Jul 22", "amount": 3996, "count": 6, "new_amount": 3996, "recurring_amount": 0}, {"month": "Aug 22", "amount": 5994, "count": 6, "new_amount": 5994, "recurring_amount": 0}, {"month": "Sep 22", "amount": 999, "count": 1, "new_amount": 999, "recurring_amount": 0}, {"month": "Oct 22", "amount": 2997, "count": 3, "new_amount": 2997, "recurring_amount": 0}, {"month": "Nov 22", "amount": 3996, "count": 4, "new_amount": 3996, "recurring_amount": 0}, {"month": "Dec 22", "amount": 1998, "count": 2, "new_amount": 1998, "recurring_amount": 0}, {"month": "Jan 23", "amount": 13108, "count": 8, "new_amount": 13108, "recurring_amount": 0}, {"month": "Feb 23", "amount": 11359, "count": 7, "new_amount": 8247, "recurring_amount": 3112}, {"month": "Mar 23", "amount": 4411, "count": 5, "new_amount": 1299, "recurring_amount": 3112}, {"month": "Apr 23", "amount": 3112, "count": 4, "new_amount": 0, "recurring_amount": 3112}, {"month": "May 23", "amount": 7009, "count": 7, "new_amount": 3897, "recurring_amount": 3112}, {"month": "Jun 23", "amount": 17922, "count": 15, "new_amount": 15588, "recurring_amount": 2334}, {"month": "Jul 23", "amount": 2334, "count": 3, "new_amount": 0, "recurring_amount": 2334}, {"month": "Aug 23", "amount": 8829, "count": 8, "new_amount": 6495, "recurring_amount": 2334}, {"month": "Sep 23", "amount": 2334, "count": 3, "new_amount": 0, "recurring_amount": 2334}, {"month": "Oct 23", "amount": 13456, "count": 12, "new_amount": 13159, "recurring_amount": 297}, {"month": "Nov 23", "amount": 8550, "count": 10, "new_amount": 4467, "recurring_amount": 4083}, {"month": "Dec 23", "amount": 10029, "count": 10, "new_amount": 4773, "recurring_amount": 5256}, {"month": "Jan 24", "amount": 10029, "count": 10, "new_amount": 3897, "recurring_amount": 6132}, {"month": "Feb 24", "amount": 6132, "count": 7, "new_amount": 0, "recurring_amount": 6132}, {"month": "Mar 24", "amount": 10128, "count": 11, "new_amount": 3996, "recurring_amount": 6132}, {"month": "Apr 24", "amount": 21720, "count": 19, "new_amount": 15588, "recurring_amount": 6132}, {"month": "May 24", "amount": 12627, "count": 12, "new_amount": 6495, "recurring_amount": 6132}, {"month": "Jun 24", "amount": 7431, "count": 8, "new_amount": 1299, "recurring_amount": 6132}, {"month": "Jul 24", "amount": 26631, "count": 18, "new_amount": 24023, "recurring_amount": 2608}, {"month": "Aug 24", "amount": 57654, "count": 59, "new_amount": 50628, "recurring_amount": 7026}, {"month": "Sep 24", "amount": 22777, "count": 25, "new_amount": 4472, "recurring_amount": 18305}, {"month": "Oct 24", "amount": 10864, "count": 15, "new_amount": 170, "recurring_amount": 10694}, {"month": "Nov 24", "amount": 20713, "count": 18, "new_amount": 13794, "recurring_amount": 6919}, {"month": "Dec 24", "amount": 11317, "count": 13, "new_amount": 4398, "recurring_amount": 6919}, {"month": "Jan 25", "amount": 10760, "count": 14, "new_amount": 4498, "recurring_amount": 6262}, {"month": "Feb 25", "amount": 7945, "count": 11, "new_amount": 2999, "recurring_amount": 4946}, {"month": "Mar 25", "amount": 10602, "count": 12, "new_amount": 5656, "recurring_amount": 4946}, {"month": "Apr 25", "amount": 20890, "count": 19, "new_amount": 15286, "recurring_amount": 5604}, {"month": "May 25", "amount": 14392, "count": 17, "new_amount": 5498, "recurring_amount": 8894}, {"month": "Jun 25", "amount": 29152, "count": 24, "new_amount": 20916, "recurring_amount": 8236}, {"month": "Jul 25", "amount": 27323, "count": 21, "new_amount": 16589, "recurring_amount": 10734}, {"month": "Aug 25", "amount": 18865, "count": 12, "new_amount": 10996, "recurring_amount": 7869}, {"month": "Sep 25", "amount": 26761, "count": 17, "new_amount": 16393, "recurring_amount": 10368}, {"month": "Oct 25", "amount": 5105, "count": 7, "new_amount": 0, "recurring_amount": 5105}, {"month": "Nov 25", "amount": 46269, "count": 15, "new_amount": 41664, "recurring_amount": 4605}, {"month": "Dec 25", "amount": 23646, "count": 17, "new_amount": 19602, "recurring_amount": 4044}, {"month": "Jan 26", "amount": 16222, "count": 22, "new_amount": 8962, "recurring_amount": 7260}, {"month": "Feb 26", "amount": 12014, "count": 21, "new_amount": 3924, "recurring_amount": 8090}, {"month": "Mar 26", "amount": 20448, "count": 26, "new_amount": 10758, "recurring_amount": 9690}, {"month": "Apr 26", "amount": 27406, "count": 30, "new_amount": 19248, "recurring_amount": 8158}, {"month": "May 26", "amount": 20498, "count": 30, "new_amount": 10094, "recurring_amount": 10404}, {"month": "Jun 26", "amount": 12088, "count": 21, "new_amount": 254, "recurring_amount": 11834}, {"month": "Jul 26", "amount": 5011, "count": 10, "new_amount": 1108, "recurring_amount": 3903}], "contacts_monthly": [{"month": "Jul 22", "new": 1793, "total": 1794}, {"month": "Aug 22", "new": 131, "total": 1925}, {"month": "Sep 22", "new": 82, "total": 2007}, {"month": "Oct 22", "new": 142, "total": 2149}, {"month": "Nov 22", "new": 223, "total": 2372}, {"month": "Dec 22", "new": 376, "total": 2748}, {"month": "Jan 23", "new": 314, "total": 3062}, {"month": "Feb 23", "new": 518, "total": 3580}, {"month": "Mar 23", "new": 620, "total": 4200}, {"month": "Apr 23", "new": 223, "total": 4423}, {"month": "May 23", "new": 49, "total": 4472}, {"month": "Jun 23", "new": 41, "total": 4513}, {"month": "Jul 23", "new": 26, "total": 4539}, {"month": "Aug 23", "new": 33, "total": 4572}, {"month": "Sep 23", "new": 29, "total": 4601}, {"month": "Oct 23", "new": 94, "total": 4695}, {"month": "Nov 23", "new": 24, "total": 4719}, {"month": "Dec 23", "new": 43, "total": 4762}, {"month": "Jan 24", "new": 53, "total": 4815}, {"month": "Feb 24", "new": 70, "total": 4885}, {"month": "Mar 24", "new": 28, "total": 4913}, {"month": "Apr 24", "new": 35, "total": 4948}, {"month": "May 24", "new": 28, "total": 4976}, {"month": "Jun 24", "new": 20, "total": 4996}, {"month": "Jul 24", "new": 21, "total": 5002}, {"month": "Aug 24", "new": 127, "total": 5144}, {"month": "Sep 24", "new": 29, "total": 5173}, {"month": "Oct 24", "new": 78, "total": 5251}, {"month": "Nov 24", "new": 29, "total": 5280}, {"month": "Dec 24", "new": 93, "total": 5373}, {"month": "Jan 25", "new": 47, "total": 5420}, {"month": "Feb 25", "new": 41, "total": 5461}, {"month": "Mar 25", "new": 41, "total": 5502}, {"month": "Apr 25", "new": 376, "total": 5878}, {"month": "May 25", "new": 420, "total": 6298}, {"month": "Jun 25", "new": 284, "total": 6582}, {"month": "Jul 25", "new": 138, "total": 6720}, {"month": "Aug 25", "new": 142, "total": 6862}, {"month": "Sep 25", "new": 214, "total": 7076}, {"month": "Oct 25", "new": 19, "total": 7095}, {"month": "Nov 25", "new": 16, "total": 7111}, {"month": "Dec 25", "new": 10, "total": 7121}, {"month": "Jan 26", "new": 20, "total": 7141}, {"month": "Feb 26", "new": 28, "total": 7169}, {"month": "Mar 26", "new": 16, "total": 7185}, {"month": "Apr 26", "new": 93, "total": 7278}, {"month": "May 26", "new": 62, "total": 7340}, {"month": "Jun 26", "new": 67, "total": 7407}, {"month": "Jul 26", "new": 2, "total": 7409}], "revenue_by_offer": [{"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 6, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 26, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 9, "revenue": 0}, {"offer": "", "count": 32, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 154, "revenue": 0}, {"offer": "", "count": 12, "revenue": 0}, {"offer": "", "count": 17, "revenue": 0}, {"offer": "", "count": 10, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 8, "revenue": 0}, {"offer": "", "count": 15, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 34, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 16, "revenue": 0}, {"offer": "", "count": 45, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 198, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 12, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 6, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}], "daily": {"tz": "US Central", "dates": ["2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09"], "revenue": [333, 205, 899, 0, 0, 1000, 658, 0, 1412, 0, 999, 899, 750, 0, 0, 0, 330, 330, 0, 1095, 3499, 2291, 254, 0, 0, 2999, 0, 1316, 0, 330, 899, 0, 205, 899, 0, 0, 1000, 658, 0, 1158, 0, 0, 899, 750, 0, 0, 0, 0, 0, 0, 1016, 1000, 1300, 0, 0, 658, 0, 1649, 500, 330, 899, 0, 205, 899, 529, 0], "transactions": [1, 1, 1, 0, 0, 1, 1, 0, 3, 0, 1, 1, 2, 0, 0, 0, 1, 1, 0, 3, 3, 4, 1, 0, 0, 1, 0, 2, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 2, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 3, 2, 2, 0, 0, 1, 0, 3, 1, 1, 1, 0, 1, 1, 2, 0], "new_contacts": [33, 7, 2, 0, 0, 0, 3, 1, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 2, 0, 0, 1, 7, 3, 1, 0, 1, 4, 1, 4, 0, 1, 3, 0, 0, 5, 8, 6, 6, 1, 4, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0], "new_customers": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0], "new_revenue": [333, 0, 899, 0, 0, 0, 0, 0, 0, 0, 999, 0, 0, 0, 0, 0, 0, 0, 0, 333, 2499, 1133, 0, 0, 0, 2999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 254, 0, 0, 0, 0, 0, 0, 333, 500, 0, 0, 0, 0, 0, 275, 0], "recurring_revenue": [0, 205, 0, 0, 0, 1000, 658, 0, 1412, 0, 0, 899, 750, 0, 0, 0, 330, 330, 0, 762, 1000, 1158, 254, 0, 0, 0, 0, 1316, 0, 330, 899, 0, 205, 899, 0, 0, 1000, 658, 0, 1158, 0, 0, 899, 750, 0, 0, 0, 0, 0, 0, 762, 1000, 1300, 0, 0, 658, 0, 1316, 0, 330, 899, 0, 205, 899, 254, 0]}, "total_rev": 695853, "contacts_total": 7408, "forecast": 16703, "mrr_now": 0, "new_transactions": [{"date": "2026-07-08", "name": "Sarah Cooper", "offer": "The Simple Shui Course", "amount": 275}, {"date": "2026-07-02", "name": "Malina Ilia", "offer": "The Simple Shui Course", "amount": 500}, {"date": "2026-07-01", "name": "Megan Straley", "offer": "The Simple Shui Course | Megan", "amount": 333}, {"date": "2026-06-24", "name": "Anne Pond", "offer": "House Therapy Fall 2026 | Anne Pond", "amount": 254}, {"date": "2026-05-30", "name": "Amy Tobey", "offer": "The Simple Shui Course", "amount": 2999}, {"date": "2026-05-26", "name": "Valeryia Spreng", "offer": "House Therapy Fall 2026", "amount": 800}, {"date": "2026-05-26", "name": "Megan Straley", "offer": "Workshop + Replay", "amount": 333}, {"date": "2026-05-25", "name": "Melanie Vincent", "offer": "The Simple Shui Course", "amount": 2499}, {"date": "2026-05-24", "name": "Patricia Brown", "offer": "Workshop + Replay", "amount": 333}, {"date": "2026-05-15", "name": "Amy Dholakia", "offer": "House Therapy Directory Featured Listing", "amount": 999}, {"date": "2026-05-07", "name": "Leigh Cronin", "offer": "House Therapy Fall 2026", "amount": 899}, {"date": "2026-05-05", "name": "Eva van Dort", "offer": "Workshop Replay", "amount": 333}, {"date": "2026-05-04", "name": "Nancy Coatney", "offer": "House Therapy Fall 2026", "amount": 899}, {"date": "2026-04-27", "name": "Kristi Inzunza", "offer": "Workshop Replay", "amount": 333}, {"date": "2026-04-26", "name": "Leigh Cronin", "offer": "The Simple Shui Course", "amount": 500}, {"date": "2026-04-25", "name": "Joanne Banglos", "offer": "The Simple Shui Course", "amount": 500}, {"date": "2026-04-25", "name": "Cindy Green", "offer": "The Simple Shui Course", "amount": 500}, {"date": "2026-04-24", "name": "Kendra Moore", "offer": "The Simple Shui Course", "amount": 2999}, {"date": "2026-04-17", "name": "N RATH", "offer": "1:1 WATCH ME WORK", "amount": 250}, {"date": "2026-04-17", "name": "Susanna Sjöblom", "offer": "1:1 WATCH ME WORK", "amount": 500}, {"date": "2026-04-16", "name": "Megan Straley", "offer": "Workshop Replay", "amount": 333}, {"date": "2026-04-15", "name": "Amy Dholakia", "offer": "1:1 WATCH ME WORK", "amount": 3000}, {"date": "2026-04-15", "name": "genevieve champness", "offer": "1:1 WATCH ME WORK", "amount": 3000}, {"date": "2026-04-14", "name": "Patti Nott", "offer": "1:1 WATCH ME WORK", "amount": 3000}, {"date": "2026-04-13", "name": "Jill McDermott", "offer": "1:1 WATCH ME WORK", "amount": 3000}, {"date": "2026-04-10", "name": "Brianna McCabe", "offer": "1:1 WATCH ME WORK", "amount": 1000}, {"date": "2026-04-02", "name": "Anna Zahner", "offer": "Workshop Replay", "amount": 333}, {"date": "2026-03-26", "name": "Anne Mangiardi", "offer": "The Simple Shui Course", "amount": 2999}, {"date": "2026-03-24", "name": "Joyce Slaughter", "offer": "The Simple Shui Course", "amount": 333}, {"date": "2026-03-24", "name": "Cassie Champagne", "offer": "Workshop Replay", "amount": 333}], "pending_revenue": {"total": 71710, "next_7d": 2215, "next_30d": 12192, "next_6mo": 59656, "next_1yr": 68955, "monthly_forecast": [{"month": "Jul 26", "amount": 7435}, {"month": "Aug 26", "amount": 12192}, {"month": "Sep 26", "amount": 11763}, {"month": "Oct 26", "amount": 9430}, {"month": "Nov 26", "amount": 9430}, {"month": "Dec 26", "amount": 6798}], "active_plans_count": 21}};
+const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "https://amanda-gibby-peters.mykajabi.com", "instructor_name": "Amanda Gibby Peters", "currency": "USD", "support_email": "amanda@simpleshui.com"}, "generated_at": "2026-07-09 19:52:35", "revenue_monthly": [{"month": "Jul 22", "amount": 3996, "count": 6, "new_amount": 3996, "recurring_amount": 0}, {"month": "Aug 22", "amount": 5994, "count": 6, "new_amount": 5994, "recurring_amount": 0}, {"month": "Sep 22", "amount": 999, "count": 1, "new_amount": 999, "recurring_amount": 0}, {"month": "Oct 22", "amount": 2997, "count": 3, "new_amount": 2997, "recurring_amount": 0}, {"month": "Nov 22", "amount": 3996, "count": 4, "new_amount": 3996, "recurring_amount": 0}, {"month": "Dec 22", "amount": 1998, "count": 2, "new_amount": 1998, "recurring_amount": 0}, {"month": "Jan 23", "amount": 13108, "count": 8, "new_amount": 13108, "recurring_amount": 0}, {"month": "Feb 23", "amount": 11359, "count": 7, "new_amount": 8247, "recurring_amount": 3112}, {"month": "Mar 23", "amount": 4411, "count": 5, "new_amount": 1299, "recurring_amount": 3112}, {"month": "Apr 23", "amount": 3112, "count": 4, "new_amount": 0, "recurring_amount": 3112}, {"month": "May 23", "amount": 7009, "count": 7, "new_amount": 3897, "recurring_amount": 3112}, {"month": "Jun 23", "amount": 17922, "count": 15, "new_amount": 15588, "recurring_amount": 2334}, {"month": "Jul 23", "amount": 2334, "count": 3, "new_amount": 0, "recurring_amount": 2334}, {"month": "Aug 23", "amount": 8829, "count": 8, "new_amount": 6495, "recurring_amount": 2334}, {"month": "Sep 23", "amount": 2334, "count": 3, "new_amount": 0, "recurring_amount": 2334}, {"month": "Oct 23", "amount": 13456, "count": 12, "new_amount": 13159, "recurring_amount": 297}, {"month": "Nov 23", "amount": 8550, "count": 10, "new_amount": 4467, "recurring_amount": 4083}, {"month": "Dec 23", "amount": 10029, "count": 10, "new_amount": 4773, "recurring_amount": 5256}, {"month": "Jan 24", "amount": 10029, "count": 10, "new_amount": 3897, "recurring_amount": 6132}, {"month": "Feb 24", "amount": 6132, "count": 7, "new_amount": 0, "recurring_amount": 6132}, {"month": "Mar 24", "amount": 10128, "count": 11, "new_amount": 3996, "recurring_amount": 6132}, {"month": "Apr 24", "amount": 21720, "count": 19, "new_amount": 15588, "recurring_amount": 6132}, {"month": "May 24", "amount": 12627, "count": 12, "new_amount": 6495, "recurring_amount": 6132}, {"month": "Jun 24", "amount": 7431, "count": 8, "new_amount": 1299, "recurring_amount": 6132}, {"month": "Jul 24", "amount": 26631, "count": 18, "new_amount": 24023, "recurring_amount": 2608}, {"month": "Aug 24", "amount": 57654, "count": 59, "new_amount": 50628, "recurring_amount": 7026}, {"month": "Sep 24", "amount": 22777, "count": 25, "new_amount": 4472, "recurring_amount": 18305}, {"month": "Oct 24", "amount": 10864, "count": 15, "new_amount": 170, "recurring_amount": 10694}, {"month": "Nov 24", "amount": 20713, "count": 18, "new_amount": 13794, "recurring_amount": 6919}, {"month": "Dec 24", "amount": 11317, "count": 13, "new_amount": 4398, "recurring_amount": 6919}, {"month": "Jan 25", "amount": 10760, "count": 14, "new_amount": 4498, "recurring_amount": 6262}, {"month": "Feb 25", "amount": 7945, "count": 11, "new_amount": 2999, "recurring_amount": 4946}, {"month": "Mar 25", "amount": 10602, "count": 12, "new_amount": 5656, "recurring_amount": 4946}, {"month": "Apr 25", "amount": 20890, "count": 19, "new_amount": 15286, "recurring_amount": 5604}, {"month": "May 25", "amount": 14392, "count": 17, "new_amount": 5498, "recurring_amount": 8894}, {"month": "Jun 25", "amount": 29152, "count": 24, "new_amount": 20916, "recurring_amount": 8236}, {"month": "Jul 25", "amount": 27323, "count": 21, "new_amount": 16589, "recurring_amount": 10734}, {"month": "Aug 25", "amount": 18865, "count": 12, "new_amount": 10996, "recurring_amount": 7869}, {"month": "Sep 25", "amount": 26761, "count": 17, "new_amount": 16393, "recurring_amount": 10368}, {"month": "Oct 25", "amount": 5105, "count": 7, "new_amount": 0, "recurring_amount": 5105}, {"month": "Nov 25", "amount": 46269, "count": 15, "new_amount": 41664, "recurring_amount": 4605}, {"month": "Dec 25", "amount": 23646, "count": 17, "new_amount": 19602, "recurring_amount": 4044}, {"month": "Jan 26", "amount": 16222, "count": 22, "new_amount": 8962, "recurring_amount": 7260}, {"month": "Feb 26", "amount": 12014, "count": 21, "new_amount": 3924, "recurring_amount": 8090}, {"month": "Mar 26", "amount": 20448, "count": 26, "new_amount": 10758, "recurring_amount": 9690}, {"month": "Apr 26", "amount": 27406, "count": 30, "new_amount": 19248, "recurring_amount": 8158}, {"month": "May 26", "amount": 20498, "count": 30, "new_amount": 10094, "recurring_amount": 10404}, {"month": "Jun 26", "amount": 12088, "count": 21, "new_amount": 254, "recurring_amount": 11834}, {"month": "Jul 26", "amount": 5011, "count": 10, "new_amount": 1108, "recurring_amount": 3903}], "contacts_monthly": [{"month": "Jul 22", "new": 1793, "total": 1794}, {"month": "Aug 22", "new": 131, "total": 1925}, {"month": "Sep 22", "new": 82, "total": 2007}, {"month": "Oct 22", "new": 142, "total": 2149}, {"month": "Nov 22", "new": 223, "total": 2372}, {"month": "Dec 22", "new": 376, "total": 2748}, {"month": "Jan 23", "new": 314, "total": 3062}, {"month": "Feb 23", "new": 518, "total": 3580}, {"month": "Mar 23", "new": 620, "total": 4200}, {"month": "Apr 23", "new": 223, "total": 4423}, {"month": "May 23", "new": 49, "total": 4472}, {"month": "Jun 23", "new": 41, "total": 4513}, {"month": "Jul 23", "new": 26, "total": 4539}, {"month": "Aug 23", "new": 33, "total": 4572}, {"month": "Sep 23", "new": 29, "total": 4601}, {"month": "Oct 23", "new": 94, "total": 4695}, {"month": "Nov 23", "new": 24, "total": 4719}, {"month": "Dec 23", "new": 43, "total": 4762}, {"month": "Jan 24", "new": 53, "total": 4815}, {"month": "Feb 24", "new": 70, "total": 4885}, {"month": "Mar 24", "new": 28, "total": 4913}, {"month": "Apr 24", "new": 35, "total": 4948}, {"month": "May 24", "new": 28, "total": 4976}, {"month": "Jun 24", "new": 20, "total": 4996}, {"month": "Jul 24", "new": 21, "total": 5002}, {"month": "Aug 24", "new": 127, "total": 5144}, {"month": "Sep 24", "new": 29, "total": 5173}, {"month": "Oct 24", "new": 78, "total": 5251}, {"month": "Nov 24", "new": 29, "total": 5280}, {"month": "Dec 24", "new": 93, "total": 5373}, {"month": "Jan 25", "new": 47, "total": 5420}, {"month": "Feb 25", "new": 41, "total": 5461}, {"month": "Mar 25", "new": 41, "total": 5502}, {"month": "Apr 25", "new": 376, "total": 5878}, {"month": "May 25", "new": 420, "total": 6298}, {"month": "Jun 25", "new": 284, "total": 6582}, {"month": "Jul 25", "new": 138, "total": 6720}, {"month": "Aug 25", "new": 142, "total": 6862}, {"month": "Sep 25", "new": 214, "total": 7076}, {"month": "Oct 25", "new": 19, "total": 7095}, {"month": "Nov 25", "new": 16, "total": 7111}, {"month": "Dec 25", "new": 10, "total": 7121}, {"month": "Jan 26", "new": 20, "total": 7141}, {"month": "Feb 26", "new": 28, "total": 7169}, {"month": "Mar 26", "new": 16, "total": 7185}, {"month": "Apr 26", "new": 93, "total": 7278}, {"month": "May 26", "new": 62, "total": 7340}, {"month": "Jun 26", "new": 67, "total": 7407}, {"month": "Jul 26", "new": 2, "total": 7409}], "revenue_by_offer": [{"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 6, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 26, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 9, "revenue": 0}, {"offer": "", "count": 32, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 154, "revenue": 0}, {"offer": "", "count": 12, "revenue": 0}, {"offer": "", "count": 17, "revenue": 0}, {"offer": "", "count": 10, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 8, "revenue": 0}, {"offer": "", "count": 15, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 34, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 3, "revenue": 0}, {"offer": "", "count": 16, "revenue": 0}, {"offer": "", "count": 45, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 198, "revenue": 0}, {"offer": "", "count": 5, "revenue": 0}, {"offer": "", "count": 4, "revenue": 0}, {"offer": "", "count": 2, "revenue": 0}, {"offer": "", "count": 12, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}, {"offer": "", "count": 6, "revenue": 0}, {"offer": "", "count": 1, "revenue": 0}], "daily": {"tz": "US Central", "dates": ["2026-05-05", "2026-05-06", "2026-05-07", "2026-05-08", "2026-05-09", "2026-05-10", "2026-05-11", "2026-05-12", "2026-05-13", "2026-05-14", "2026-05-15", "2026-05-16", "2026-05-17", "2026-05-18", "2026-05-19", "2026-05-20", "2026-05-21", "2026-05-22", "2026-05-23", "2026-05-24", "2026-05-25", "2026-05-26", "2026-05-27", "2026-05-28", "2026-05-29", "2026-05-30", "2026-05-31", "2026-06-01", "2026-06-02", "2026-06-03", "2026-06-04", "2026-06-05", "2026-06-06", "2026-06-07", "2026-06-08", "2026-06-09", "2026-06-10", "2026-06-11", "2026-06-12", "2026-06-13", "2026-06-14", "2026-06-15", "2026-06-16", "2026-06-17", "2026-06-18", "2026-06-19", "2026-06-20", "2026-06-21", "2026-06-22", "2026-06-23", "2026-06-24", "2026-06-25", "2026-06-26", "2026-06-27", "2026-06-28", "2026-06-29", "2026-06-30", "2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05", "2026-07-06", "2026-07-07", "2026-07-08", "2026-07-09"], "revenue": [333, 205, 899, 0, 0, 1000, 658, 0, 1412, 0, 999, 899, 750, 0, 0, 0, 330, 330, 0, 1095, 3499, 2291, 254, 0, 0, 2999, 0, 1316, 0, 330, 899, 0, 205, 899, 0, 0, 1000, 658, 0, 1158, 0, 0, 899, 750, 0, 0, 0, 0, 0, 0, 1016, 1000, 1300, 0, 0, 658, 0, 1649, 500, 330, 899, 0, 205, 899, 529, 0], "transactions": [1, 1, 1, 0, 0, 1, 1, 0, 3, 0, 1, 1, 2, 0, 0, 0, 1, 1, 0, 3, 3, 4, 1, 0, 0, 1, 0, 2, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 2, 0, 0, 1, 2, 0, 0, 0, 0, 0, 0, 3, 2, 2, 0, 0, 1, 0, 3, 1, 1, 1, 0, 1, 1, 2, 0], "new_contacts": [33, 7, 2, 0, 0, 0, 3, 1, 2, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 2, 0, 0, 1, 7, 3, 1, 0, 1, 4, 1, 4, 0, 1, 3, 0, 0, 5, 8, 6, 6, 1, 4, 7, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0], "new_customers": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0], "new_revenue": [333, 0, 899, 0, 0, 0, 0, 0, 0, 0, 999, 0, 0, 0, 0, 0, 0, 0, 0, 333, 2499, 1133, 0, 0, 0, 2999, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 254, 0, 0, 0, 0, 0, 0, 333, 500, 0, 0, 0, 0, 0, 275, 0], "recurring_revenue": [0, 205, 0, 0, 0, 1000, 658, 0, 1412, 0, 0, 899, 750, 0, 0, 0, 330, 330, 0, 762, 1000, 1158, 254, 0, 0, 0, 0, 1316, 0, 330, 899, 0, 205, 899, 0, 0, 1000, 658, 0, 1158, 0, 0, 899, 750, 0, 0, 0, 0, 0, 0, 762, 1000, 1300, 0, 0, 658, 0, 1316, 0, 330, 899, 0, 205, 899, 254, 0]}, "total_rev": 695853, "contacts_total": 7408, "forecast": 16703, "mrr_now": 0, "new_transactions": [{"date": "2026-07-08", "name": "Sarah Cooper", "offer": "The Simple Shui Course", "amount": 275}, {"date": "2026-07-02", "name": "Malina Ilia", "offer": "The Simple Shui Course", "amount": 500}, {"date": "2026-07-01", "name": "Megan Straley", "offer": "The Simple Shui Course | Megan", "amount": 333}, {"date": "2026-06-24", "name": "Anne Pond", "offer": "House Therapy Fall 2026 | Anne Pond", "amount": 254}, {"date": "2026-05-30", "name": "Amy Tobey", "offer": "The Simple Shui Course", "amount": 2999}, {"date": "2026-05-26", "name": "Valeryia Spreng", "offer": "House Therapy Fall 2026", "amount": 800}, {"date": "2026-05-26", "name": "Megan Straley", "offer": "Workshop + Replay", "amount": 333}, {"date": "2026-05-25", "name": "Melanie Vincent", "offer": "The Simple Shui Course", "amount": 2499}, {"date": "2026-05-24", "name": "Patricia Brown", "offer": "Workshop + Replay", "amount": 333}, {"date": "2026-05-15", "name": "Amy Dholakia", "offer": "House Therapy Directory Featured Listing", "amount": 999}, {"date": "2026-05-07", "name": "Leigh Cronin", "offer": "House Therapy Fall 2026", "amount": 899}, {"date": "2026-05-05", "name": "Eva van Dort", "offer": "Workshop Replay", "amount": 333}, {"date": "2026-05-04", "name": "Nancy Coatney", "offer": "House Therapy Fall 2026", "amount": 899}, {"date": "2026-04-27", "name": "Kristi Inzunza", "offer": "Workshop Replay", "amount": 333}, {"date": "2026-04-26", "name": "Leigh Cronin", "offer": "The Simple Shui Course", "amount": 500}, {"date": "2026-04-25", "name": "Joanne Banglos", "offer": "The Simple Shui Course", "amount": 500}, {"date": "2026-04-25", "name": "Cindy Green", "offer": "The Simple Shui Course", "amount": 500}, {"date": "2026-04-24", "name": "Kendra Moore", "offer": "The Simple Shui Course", "amount": 2999}, {"date": "2026-04-17", "name": "N RATH", "offer": "1:1 WATCH ME WORK", "amount": 250}, {"date": "2026-04-17", "name": "Susanna Sjöblom", "offer": "1:1 WATCH ME WORK", "amount": 500}, {"date": "2026-04-16", "name": "Megan Straley", "offer": "Workshop Replay", "amount": 333}, {"date": "2026-04-15", "name": "Amy Dholakia", "offer": "1:1 WATCH ME WORK", "amount": 3000}, {"date": "2026-04-15", "name": "genevieve champness", "offer": "1:1 WATCH ME WORK", "amount": 3000}, {"date": "2026-04-14", "name": "Patti Nott", "offer": "1:1 WATCH ME WORK", "amount": 3000}, {"date": "2026-04-13", "name": "Jill McDermott", "offer": "1:1 WATCH ME WORK", "amount": 3000}, {"date": "2026-04-10", "name": "Brianna McCabe", "offer": "1:1 WATCH ME WORK", "amount": 1000}, {"date": "2026-04-02", "name": "Anna Zahner", "offer": "Workshop Replay", "amount": 333}, {"date": "2026-03-26", "name": "Anne Mangiardi", "offer": "The Simple Shui Course", "amount": 2999}, {"date": "2026-03-24", "name": "Joyce Slaughter", "offer": "The Simple Shui Course", "amount": 333}, {"date": "2026-03-24", "name": "Cassie Champagne", "offer": "Workshop Replay", "amount": 333}], "pending_revenue": {"total": 71710, "next_7d": 2215, "next_30d": 12192, "next_6mo": 59656, "next_1yr": 68955, "monthly_forecast": [{"month": "Aug 26", "amount": 12192}, {"month": "Sep 26", "amount": 11763}, {"month": "Oct 26", "amount": 9430}, {"month": "Nov 26", "amount": 9430}, {"month": "Dec 26", "amount": 6798}, {"month": "Jan 27", "amount": 4066}], "active_plans_count": 21}};
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
@@ -292,17 +269,21 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
   const lead30     = leads.slice(-30).reduce((a,b)=>a+b,0);
   const revPrev30  = rev.slice(-60,-30).reduce((a,b)=>a+b,0);
   const leadPrev30 = leads.slice(-60,-30).reduce((a,b)=>a+b,0);
+  const lead7      = leads.slice(-7).reduce((a,b)=>a+b,0);
+  const leadPrev7  = leads.slice(-14,-7).reduce((a,b)=>a+b,0);
 
   const fmt = v => v >= 1000 ? '$' + (v/1000).toFixed(1).replace(/\.0$/,'') + 'k' : '$' + v;
 
-  function deltaLabel(cur, prev){
-    if (!prev) return 'last 30 days';
+  function deltaLabel(cur, prev, winFull, winShort){
+    winFull  = winFull  || 'last 30 days';
+    winShort = winShort || '30d';
+    if (!prev) return winFull;
     const diff = cur - prev;
     const pct  = (diff / prev) * 100;
-    if (Math.abs(pct) < 0.5) return '<span class="delta flat">flat vs prior 30d</span>';
+    if (Math.abs(pct) < 0.5) return `<span class="delta flat">flat vs prior ${winShort}</span>`;
     const cls = diff >= 0 ? 'up' : 'down';
     const arrow = diff >= 0 ? '▲' : '▼';
-    return `<span class="delta ${cls}">${arrow} ${Math.abs(pct).toFixed(0)}% vs prior 30d</span>`;
+    return `<span class="delta ${cls}">${arrow} ${Math.abs(pct).toFixed(0)}% vs prior ${winShort}</span>`;
   }
 
   document.getElementById('kTotalRev').textContent = '$' + Math.round(totalRev/1000) + 'k';
@@ -311,6 +292,8 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
   document.getElementById('k30Contacts').textContent = lead30.toLocaleString();
   document.getElementById('k30RevDelta').innerHTML = deltaLabel(rev30, revPrev30);
   document.getElementById('k30ContactsDelta').innerHTML = deltaLabel(lead30, leadPrev30);
+  document.getElementById('k7Contacts').textContent = lead7.toLocaleString();
+  document.getElementById('k7ContactsDelta').innerHTML = deltaLabel(lead7, leadPrev7, 'last 7 days', '7d');
 
   // ── Week slices ─────────────────────────────────────────────
   const w7dates  = dates.slice(-7);
@@ -361,19 +344,25 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
     };
   }
 
-  // ── Stacked new/recurring bar chart factory (shared by monthly + daily) ──
-  function stackedRevChart(canvasId, labels, newVals, recVals, xExtra){
+  // ── Stacked new/recurring(/pending) bar chart factory (shared by monthly + daily) ──
+  function stackedRevChart(canvasId, labels, newVals, recVals, xExtra, pendVals){
+    const datasets = [
+      {label:'Recurring', data:recVals, backgroundColor:'#3ec97c', stack:'rev', borderRadius:6, borderSkipped:false},
+      {label:'New', data:newVals, backgroundColor:'#7c5cff', stack:'rev', borderRadius:6, borderSkipped:false}
+    ];
+    if (pendVals) {
+      datasets.push({label:'Pending', data:pendVals, backgroundColor:'#ff6fa5', stack:'rev', borderRadius:6, borderSkipped:false});
+    }
+    const order = {New:0, Recurring:1, Pending:2};
     return new Chart(document.getElementById(canvasId),{
       type:'bar',
-      data:{labels:labels, datasets:[
-        {label:'Recurring', data:recVals, backgroundColor:'#3ec97c', stack:'rev', borderRadius:6, borderSkipped:false},
-        {label:'New', data:newVals, backgroundColor:'#7c5cff', stack:'rev', borderRadius:6, borderSkipped:false}
-      ]},
+      data:{labels:labels, datasets:datasets},
       options:{
         responsive:true, maintainAspectRatio:false,
         interaction:{mode:'index', intersect:false},
         plugins:{legend:{display:false}, tooltip:{...TIP, displayColors:true,
-          itemSort:(a,b)=> (a.dataset.label==='New' ? -1 : 1) - (b.dataset.label==='New' ? -1 : 1),
+          itemSort:(a,b)=> order[a.dataset.label] - order[b.dataset.label],
+          filter:item => item.raw != null && item.raw !== 0,
           callbacks:{
           title:t=>t[0].label,
           label:c=>' '+c.dataset.label+': $'+Math.round(c.raw).toLocaleString(),
@@ -387,11 +376,13 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
     });
   }
 
-  // ── Monthly revenue, stacked new vs recurring ────────────────
-  const mLabels = (SS.revenue_monthly||[]).map(m=>m.month);
-  const mNew    = (SS.revenue_monthly||[]).map(m=>m.new_amount||0);
-  const mRec    = (SS.revenue_monthly||[]).map(m=>m.recurring_amount!=null ? m.recurring_amount : (m.amount||0));
-  stackedRevChart('cMonRev', mLabels, mNew, mRec, {autoSkip:false, maxRotation:45});
+  // ── Monthly revenue, stacked new vs recurring, with a 6-month pending forecast appended ──
+  const forecast = (SS.pending_revenue || {}).monthly_forecast || [];
+  const mLabels = (SS.revenue_monthly||[]).map(m=>m.month).concat(forecast.map(f=>f.month));
+  const mNew    = (SS.revenue_monthly||[]).map(m=>m.new_amount||0).concat(forecast.map(()=>null));
+  const mRec    = (SS.revenue_monthly||[]).map(m=>m.recurring_amount!=null ? m.recurring_amount : (m.amount||0)).concat(forecast.map(()=>null));
+  const mPending= (SS.revenue_monthly||[]).map(()=>null).concat(forecast.map(f=>f.amount||0));
+  stackedRevChart('cMonRev', mLabels, mNew, mRec, {autoSkip:false, maxRotation:45}, mPending);
 
   // ── Daily revenue, last 30 days, stacked new vs recurring ────
   const dNewArr = daily.new_revenue || [];
@@ -423,8 +414,9 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
     return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  // ── Pending revenue (active fixed-term payment plans) ────────
-  (function renderPending(){
+  // ── Pending revenue KPI cards (active fixed-term payment plans; the
+  // monthly breakdown itself is now folded into the Revenue by month chart above) ──
+  (function renderPendingKpis(){
     const pr = SS.pending_revenue || {};
     const fmtP = v => '$' + Math.round(v||0).toLocaleString();
     document.getElementById('pendTotal').textContent = fmtP(pr.total);
@@ -432,15 +424,6 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
     document.getElementById('pend30d').textContent   = fmtP(pr.next_30d);
     document.getElementById('pend6mo').textContent   = fmtP(pr.next_6mo);
     document.getElementById('pend1yr').textContent   = fmtP(pr.next_1yr);
-
-    const fc = pr.monthly_forecast || [];
-    new Chart(document.getElementById('cPendMonth'), {
-      type:'bar',
-      data:{labels: fc.map(m=>m.month), datasets:[
-        {label:'Pending revenue', data: fc.map(m=>m.amount||0), backgroundColor:'#7c5cff', borderRadius:6, borderSkipped:false}
-      ]},
-      options: barOpts(usdCb, {title:t=>t[0].label, label:c=>' $'+Math.round(c.raw).toLocaleString()}, {autoSkip:false, maxRotation:0})
-    });
   })();
 
   // ── Monthly contacts ────────────────────────────────────────
