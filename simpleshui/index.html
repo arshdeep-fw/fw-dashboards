@@ -328,7 +328,9 @@ const SS = {"site": {"id": 2147563905, "title": "Simple Shui", "website_url": "h
       options:{
         responsive:true, maintainAspectRatio:false,
         interaction:{mode:'index', intersect:false},
-        plugins:{legend:{display:false}, tooltip:{...TIP, displayColors:true, callbacks:{
+        plugins:{legend:{display:false}, tooltip:{...TIP, displayColors:true,
+          itemSort:(a,b)=> (a.dataset.label==='New' ? -1 : 1) - (b.dataset.label==='New' ? -1 : 1),
+          callbacks:{
           title:t=>t[0].label,
           label:c=>' '+c.dataset.label+': $'+Math.round(c.raw).toLocaleString(),
           footer:items=>'Total: $'+Math.round(items.reduce((s,i)=>s+i.raw,0)).toLocaleString()
