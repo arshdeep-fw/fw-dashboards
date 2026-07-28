@@ -1,0 +1,2082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dr. Jessica B. Stern — Customer Journey Map</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style data-purpose="layout">
+    body {
+      background-color: #f7f7f7;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow-x: hidden;
+      overflow-y: hidden; /* Prevent scrolling while dragging */
+    }
+
+    .map-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* Platform Group Styles - Draggable */
+    .platform-group {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 3px solid rgba(255, 255, 255, 0.5);
+      border-radius: 50%; /* Initially a circle */
+      width: 80px; /* Initial size */
+      height: 80px; /* Initial size */
+      padding: 0;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.1);
+      transition: border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s, padding 0.4s, width 0.4s, height 0.4s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      z-index: 10;
+      user-select: none;
+    }
+
+    /* Semantic Color Coding — Dr. J's real stack */
+    #plat-squarespace { border-color: #111827; }
+    #plat-thinkific { border-color: #E4B600; }
+    #plat-flodesk { border-color: #E8506B; }
+
+    .platform-group:active {
+        cursor: grabbing;
+    }
+
+    .platform-group:hover {
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 15px 20px -8px rgba(0, 0, 0, 0.15);
+    }
+
+    .platform-group.expanded {
+      width: auto !important;
+      height: auto !important;
+      min-width: 300px;
+      border-radius: 16px;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.85);
+      cursor: default;
+      z-index: 20;
+      transition: border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s, padding 0.4s;
+    }
+
+    .platform-group.expanded:active {
+        cursor: default;
+    }
+
+    .platform-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 0;
+      transition: margin-bottom 0.3s ease;
+      pointer-events: none;
+    }
+
+    .platform-group.expanded .platform-header {
+      margin-bottom: 2rem;
+      pointer-events: auto;
+    }
+
+    .platform-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: white;
+      font-size: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .platform-group.expanded .platform-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        font-size: 1.2rem;
+    }
+
+    .icon-sqsp { background: #111827; }
+    .icon-thinkific { background: #FCCC18; color: #1a1a1a; }
+    .icon-flodesk { background: #E8506B; }
+
+    .platform-title {
+      display: none;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #1f2937;
+      white-space: nowrap;
+    }
+
+    .platform-group.expanded .platform-title {
+        display: block;
+    }
+
+    .platform-subtitle {
+      display: none;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #9ca3af;
+      white-space: nowrap;
+      margin-left: -0.5rem;
+    }
+    .platform-group.expanded .platform-subtitle { display: block; }
+
+    .platform-content {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .platform-group.expanded .platform-content {
+      display: flex;
+      opacity: 1;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: flex-start;
+      justify-content: flex-start;
+      max-width: 1360px;
+    }
+
+    /* Node Styles */
+    .node-group {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+      cursor: grab;
+      transition: opacity 0.3s ease;
+    }
+
+    .node-group:active {
+        cursor: grabbing;
+    }
+
+    .node-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      text-align: center;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .node-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .node-main { width: 220px; height: 180px; }
+    .node-blog { width: 150px; height: 200px; }
+    .node-product { width: 180px; height: 200px; }
+    .node-form { width: 200px; height: 140px; }
+    .node-email { width: 180px; height: 120px; }
+
+    .mockup-header {
+      height: 12px;
+      background: #f3f4f6;
+      border-radius: 4px 4px 0 0;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      gap: 3px;
+      margin-bottom: 6px;
+    }
+    .mockup-dot { width: 4px; height: 4px; border-radius: 50%; background: #d1d5db; }
+
+    .mockup-content {
+      flex: 1;
+      background: #f9fafb;
+      border: 1px dashed #d1d5db;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      color: #9ca3af;
+      overflow: hidden;
+      padding: 4px;
+    }
+
+    /* Draft / not-live nodes */
+    .draft-node .node-card { opacity: 0.55; filter: grayscale(45%); border-style: dashed; }
+    .draft-badge {
+      position: absolute; top: 3px; right: 3px; font-size: 7px; font-weight: 700;
+      background: #6b7280; color: white; padding: 1px 5px; border-radius: 4px;
+      letter-spacing: 0.05em; z-index: 6; text-transform: uppercase;
+    }
+
+    /* Proposed (Justine) nodes */
+    .proposed-justine .node-card { border: 2px dashed #D4B106 !important; }
+    .proposed-badge {
+      position: absolute; top: 3px; right: 3px; font-size: 7px; font-weight: 700;
+      background: #D4B106; color: white; padding: 1px 5px; border-radius: 4px;
+      letter-spacing: 0.05em; z-index: 6; text-transform: uppercase;
+    }
+
+    /* Arrows - SVG overlays */
+    .arrow-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    body.hide-paths .arrow-layer {
+      display: none;
+    }
+
+    path.arrow-line {
+      fill: none;
+      stroke: #0ea5e9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke-dashoffset 0.5s, opacity 0.3s ease;
+      pointer-events: stroke;
+      cursor: pointer;
+    }
+
+    path.cross-platform-line {
+        stroke-dasharray: 8 8;
+        animation: dash 30s linear infinite;
+    }
+
+    /* Focus Mode */
+    body.focus-mode path.arrow-line:not(.focused) {
+        opacity: 0.15;
+    }
+    body.focus-mode .node-group:not(.focused),
+    body.focus-mode .source-card:not(.focused),
+    body.focus-mode .platform-group:not(.focused):not(.expanded) {
+        opacity: 0.3;
+    }
+
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -1000;
+      }
+    }
+
+    polygon.arrow-head {
+      fill: #0ea5e9;
+      transition: opacity 0.3s ease;
+    }
+    body.focus-mode polygon.arrow-head:not(.focused) {
+        opacity: 0.15;
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(243, 244, 246, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 1000px;
+      height: 85vh;
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      position: relative;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-backdrop.active .modal-content {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      z-index: 60;
+      transition: background 0.2s;
+    }
+
+    .modal-close:hover {
+      background: #f3f4f6;
+    }
+
+    .modal-body {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      background: #f9fafb;
+      position: relative;
+    }
+
+    .hidden { display: none !important; }
+
+    /* Metadata Badge */
+    .metadata-badge {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: rgba(17, 24, 39, 0.9);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      z-index: 40;
+      backdrop-filter: blur(4px);
+    }
+    .metadata-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+
+    /* Analytics Overlay Styles */
+    .analytics-overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(2px);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      padding: 0.75rem;
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    body.show-analytics .analytics-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Heatmap Overlays on CTAs */
+    body.show-analytics .cta-element {
+      position: relative;
+      overflow: hidden;
+    }
+    body.show-analytics .cta-element::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--heat, linear-gradient(90deg, rgba(239,68,68,0.7) 0%, rgba(234,179,8,0.6) 50%, rgba(34,197,94,0.7) 100%));
+      opacity: 0.6;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .analytics-date {
+      font-size: 0.6rem;
+      color: #9ca3af;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .analytics-metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .analytics-metric-label {
+      color: #d1d5db;
+    }
+
+    .analytics-metric-value {
+      color: #22d3ee;
+      font-weight: 700;
+    }
+    .analytics-metric-value.no-data { color: #9ca3af; font-weight: 500; font-style: italic; }
+
+    .modal-content .analytics-overlay {
+      background-color: rgba(17, 24, 39, 0.9);
+      padding: 2rem;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content .analytics-date {
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-content .analytics-metric {
+      width: 100%;
+      max-width: 340px;
+      font-size: 1.125rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .modal-content .analytics-metric-value {
+      font-size: 1.5rem;
+    }
+
+    /* Top Controls */
+    .top-controls {
+      position: fixed;
+      top: 1.5rem;
+      right: 2rem;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: white;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e5e7eb;
+      flex-wrap: wrap;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-left: 1px solid #e5e7eb;
+      padding-left: 1rem;
+    }
+
+    .control-group:first-child {
+      border-left: none;
+      padding-left: 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e5e7eb;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #0ea5e9;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    .control-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .btn-control {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid #d1d5db;
+      background: white;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-control:hover {
+      background: #f3f4f6;
+    }
+
+    .dblclick-hint {
+        position: absolute;
+        top: -25px;
+        font-size: 0.7rem;
+        color: #6b7280;
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        white-space: nowrap;
+    }
+
+    .platform-group:hover .dblclick-hint {
+        opacity: 1;
+    }
+    .platform-group.expanded .dblclick-hint {
+        display: none;
+    }
+
+    .cta-element {
+        position: relative;
+    }
+
+    .resize-handle {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      cursor: nwse-resize;
+      display: none;
+      z-index: 30;
+    }
+
+    .platform-group.expanded .resize-handle {
+      display: block;
+    }
+
+    .resize-handle::after {
+      content: '';
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid rgba(0,0,0,0.3);
+      border-bottom: 2px solid rgba(0,0,0,0.3);
+    }
+
+    .source-card {
+      position: absolute;
+      z-index: 10;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e5e7eb;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.5rem;
+      width: 168px;
+      cursor: grab;
+      user-select: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .source-card:active {
+      cursor: grabbing;
+    }
+
+    body.hide-sources .source-card {
+      display: none;
+    }
+
+    /* Minimap */
+    .mini-map {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 170px;
+      height: 120px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+      z-index: 90;
+      overflow: hidden;
+      opacity: 0.9;
+    }
+    .mini-map-viewport {
+      position: absolute;
+      border: 1px solid #0ea5e9;
+      background: rgba(14, 165, 233, 0.1);
+      pointer-events: none;
+    }
+    .mini-map-dot {
+      position: absolute;
+      background: #9ca3af;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+<body class="">
+<!-- Top Controls -->
+<div class="top-controls">
+<div class="control-group">
+<label class="control-label" for="expand-toggle">Expand All</label>
+<label class="toggle-switch">
+<input id="expand-toggle" onchange="toggleExpandAll(this.checked)" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="control-group">
+<label class="control-label" for="analytics-toggle">Show Analytics</label>
+<label class="toggle-switch">
+<input id="analytics-toggle" onchange="toggleAnalytics(this.checked)" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="control-group"><label class="control-label" for="paths-toggle">Show Paths</label><label class="toggle-switch"><input checked="" id="paths-toggle" onchange="document.body.classList.toggle('hide-paths', !this.checked)" type="checkbox"/><span class="toggle-slider"></span></label></div>
+<div class="control-group"><label class="control-label" for="sources-toggle">Show Sources</label><label class="toggle-switch"><input checked="" id="sources-toggle" onchange="document.body.classList.toggle('hide-sources', !this.checked); drawConnections();" type="checkbox"/><span class="toggle-slider"></span></label></div>
+<div class="control-group relative group"><label class="control-label" onclick="this.nextElementSibling.classList.toggle('hidden')">Proposed Changes</label><div class="flex flex-col bg-white border border-gray-200 rounded-lg shadow-lg absolute top-full right-0 mt-2 p-2 z-50 w-52" id="proposed-dropdown">
+<label class="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer"><input class="rounded" onchange="toggleProposed('himanshi', this.checked)" type="checkbox"/> <span class="text-xs font-medium">Himanshi</span><div class="w-2 h-2 rounded-full" style="background:#90EE90"></div></label>
+<label class="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer"><input class="rounded" onchange="toggleProposed('jordan', this.checked)" type="checkbox"/> <span class="text-xs font-medium">Jordan</span><div class="w-2 h-2 rounded-full" style="background:#006400"></div></label>
+<label class="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer"><input class="rounded" onchange="toggleProposed('justine', this.checked)" type="checkbox"/> <span class="text-xs font-medium">Justine</span><div class="w-2 h-2 rounded-full" style="background:#D4B106"></div></label>
+<label class="flex items-center gap-2 p-1 hover:bg-gray-50 cursor-pointer"><input class="rounded" onchange="toggleProposed('arsh', this.checked)" type="checkbox"/> <span class="text-xs font-medium">Arsh</span><div class="w-2 h-2 rounded-full" style="background:#800080"></div></label>
+<div class="text-[10px] text-gray-400 px-1 pt-1 border-t border-gray-100 mt-1">Justine's toggle = proposed automated email sequences only (from the 6-Month Playbook). Others have no proposals wired yet.</div>
+</div></div>
+<div class="control-group">
+<button class="btn-control" onclick="saveView()">Save View</button>
+<button class="btn-control hidden" id="restore-btn" onclick="restoreView()">Restore View</button>
+</div>
+</div>
+<!-- BEGIN: Main Map Container -->
+<main class="map-container" id="map-area">
+
+<!-- Traffic sources — Dr. J's real top GA4/GSC channels -->
+<div class="source-card cursor-pointer transition" id="source-google" style="left: 20px; top: 300px; z-index: 20;">
+<div class="analytics-overlay">
+<div class="analytics-metric"><span class="analytics-metric-label">Users (GA4)</span><span class="analytics-metric-value">1.6K</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">GSC Clicks</span><span class="analytics-metric-value">762</span></div>
+</div>
+<div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px]">G</div>
+<span class="text-xs font-medium">Google Organic Search</span>
+</div>
+
+<div class="source-card cursor-pointer transition" id="source-facebook" style="left: 5px; top: 375px; z-index: 20;">
+<div class="analytics-overlay">
+<div class="analytics-metric"><span class="analytics-metric-label">Users (GA4)</span><span class="analytics-metric-value">273</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Share</span><span class="analytics-metric-value">3.6%</span></div>
+</div>
+<div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-[10px]">F</div>
+<span class="text-xs font-medium">Facebook (referral + paid)</span>
+</div>
+
+<div class="source-card cursor-pointer transition" id="source-instagram" style="left: 16px; top: 450px; z-index: 20;">
+<div class="analytics-overlay">
+<div class="analytics-metric"><span class="analytics-metric-label">Users (GA4)</span><span class="analytics-metric-value">367</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Share</span><span class="analytics-metric-value">4.8%</span></div>
+</div>
+<div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-[10px]">I</div>
+<span class="text-xs font-medium">Instagram (bio/social/ads)</span>
+</div>
+
+<div class="source-card cursor-pointer transition" id="source-podcast" style="left: 20px; top: 525px; z-index: 20;">
+<div class="analytics-overlay">
+<div class="analytics-metric"><span class="analytics-metric-label">Real placements</span><span class="analytics-metric-value">20+</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">GA4 traffic</span><span class="analytics-metric-value no-data">not split out</span></div>
+</div>
+<div class="w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-white text-[10px]">P</div>
+<span class="text-xs font-medium">Podcasts &amp; Media Features</span>
+</div>
+
+<!-- SVG Layer for drawing connections — populated on load by drawConnections() -->
+<svg class="arrow-layer" id="svg-layer"></svg>
+
+<!-- ============ SQUARESPACE PLATFORM (unchanged tech, real pages) ============ -->
+<div class="platform-group expanded overflow-hidden" id="plat-squarespace" style="left: 40px; top: 60px; z-index: 10;">
+<div class="dblclick-hint">Double-click to collapse</div>
+<div class="platform-header">
+<div class="platform-icon icon-sqsp">SQ</div>
+<div class="platform-title">Squarespace Website</div>
+<div class="platform-subtitle">drjessicabstern.com</div>
+</div>
+<div class="platform-content">
+
+<!-- Home -->
+<div class="node-group" id="node-home">
+<div class="node-label">Home Page</div>
+<div class="node-card node-main border-blue-200 border-2" onclick="openModal('modal-home', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">GSC · last 16 mo</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">650</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Avg. position</span><span class="analytics-metric-value">12.6</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content relative overflow-hidden flex flex-col items-center justify-center p-2" style="background:#586672;">
+<div class="relative z-10 text-white font-semibold text-[10px] text-center leading-tight mb-2">"You don't need to look for balance when you can create it."</div>
+<div class="relative z-10 flex gap-1">
+<div class="cta-element text-[9px] bg-white text-black px-2 py-1 rounded focused" id="home-cta-about">Meet Dr. Jessica</div>
+</div>
+<div class="relative z-10 mt-1 cta-element text-[9px] px-3 py-1 rounded focused" id="home-cta-mayhem" style="background:#c8aeb9; color:#10151a;">Join the Course</div>
+<div class="relative z-10 mt-1 cta-element text-[8px] bg-black text-white px-2 py-1 rounded focused" id="home-cta-newsletter">Grab Your Workbook</div>
+</div>
+</div>
+</div>
+
+<!-- About -->
+<div class="node-group" id="node-about">
+<div class="node-label">About Page</div>
+<div class="node-card node-blog" onclick="openModal('modal-about', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">GSC · last 16 mo</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">65</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-col gap-2 p-2">
+<div class="text-[9px] font-bold w-full text-center">Welcome! I'm Dr. Jessica</div>
+<div class="h-14 w-full bg-gray-300 rounded"></div>
+<div class="h-2 w-full bg-gray-100 rounded mt-1"></div>
+<div class="h-2 w-5/6 bg-gray-100 rounded"></div>
+<div class="cta-element text-[9px] bg-gray-800 text-white px-2 py-1 rounded mt-2 w-full text-center focused" id="about-cta-contact">Get in Touch</div>
+</div>
+</div>
+</div>
+
+<!-- Mayhem to Magic sales page -->
+<div class="node-group" id="node-mayhem">
+<div class="node-label">Mayhem to Magic (Sales Page)</div>
+<div class="node-card node-product" onclick="openModal('modal-mayhem', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">Thinkific / live</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Price</span><span class="analytics-metric-value">$349</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Enrollments</span><span class="analytics-metric-value">15</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-row items-start gap-2 p-2" style="background:#eadde1;">
+<div class="w-1/2 h-20 rounded flex items-center justify-center bg-cover bg-center" style="background-image:url('https://images.squarespace-cdn.com/content/v1/65b92725be87d72a15016716/b589c225-356d-49f9-837b-de086ca3080f/Mayhem+to+Magic+Course+Collateral+v2.png?format=300w');"></div>
+<div class="w-1/2 flex flex-col gap-1">
+<div class="text-[8px] font-bold" style="color:#10151a;">Non-Toxic Productivity</div>
+<div class="h-2 w-1/2 bg-white/60 rounded"></div>
+<div class="cta-element h-6 w-full text-white rounded text-[8px] flex items-center justify-center mt-2 focused" id="mayhem-cta-checkout" style="background:#2e3a43;">Join the Course</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Media -->
+<div class="node-group" id="node-media">
+<div class="node-label">Media Page</div>
+<div class="node-card node-blog" onclick="openModal('modal-media', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">GSC · last 16 mo</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">20</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-col gap-2 p-2">
+<div class="text-[9px] font-bold w-full text-center">Featured Media &amp; Interviews</div>
+<div class="grid grid-cols-2 gap-1 w-full">
+<div class="h-6 bg-gray-200 rounded text-[6px] flex items-center justify-center">Today Show</div>
+<div class="h-6 bg-gray-200 rounded text-[6px] flex items-center justify-center">HuffPost</div>
+<div class="h-6 bg-gray-200 rounded text-[6px] flex items-center justify-center">Fortune</div>
+<div class="h-6 bg-gray-200 rounded text-[6px] flex items-center justify-center">SiriusXM</div>
+</div>
+<div class="cta-element text-[9px] bg-gray-800 text-white px-2 py-1 rounded mt-2 w-full text-center focused" id="media-cta-contact">Collaborate</div>
+</div>
+</div>
+</div>
+
+<!-- Resources -->
+<div class="node-group" id="node-resources">
+<div class="node-label">Resources Page</div>
+<div class="node-card node-blog" onclick="openModal('modal-resources', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">GSC · last 16 mo</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">11</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-col gap-2 p-2">
+<div class="text-[9px] font-bold w-full text-center">The Productivity Powerkit</div>
+<div class="h-14 w-full bg-gray-300 rounded"></div>
+<div class="h-2 w-full bg-gray-100 rounded mt-1"></div>
+<div class="cta-element text-[9px] bg-gray-800 text-white px-2 py-1 rounded mt-2 w-full text-center focused" id="resources-cta-form">Get the Powerkit</div>
+</div>
+</div>
+</div>
+
+<!-- Speaking -->
+<div class="node-group" id="node-speaking">
+<div class="node-label">Speaking Page</div>
+<div class="node-card node-blog" onclick="openModal('modal-speaking', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">GSC · last 16 mo</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value no-data">outside top 7</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-col gap-2 p-2">
+<div class="text-[9px] font-bold w-full text-center">Better, Not Busier</div>
+<div class="h-14 w-full bg-gray-300 rounded"></div>
+<div class="h-2 w-full bg-gray-100 rounded mt-1"></div>
+<div class="cta-element text-[9px] bg-gray-800 text-white px-2 py-1 rounded mt-2 w-full text-center focused" id="speaking-cta-contact">Get Your Custom Proposal</div>
+<div class="cta-element proposed-justine hidden text-[8px] px-2 py-1 rounded mt-1 w-full text-center" id="speaking-cta-propspeakingform" style="background:#D4B106;color:#10151a;">→ Speaking Inquiry Form (proposed)</div>
+</div>
+</div>
+</div>
+
+<!-- Consulting -->
+<div class="node-group" id="node-consulting">
+<div class="node-label">Consulting Page</div>
+<div class="node-card node-blog" onclick="openModal('modal-consulting', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">GSC · last 16 mo</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">7</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-col gap-2 p-2">
+<div class="text-[9px] font-bold w-full text-center">Consultation &amp; Partnerships</div>
+<div class="h-14 w-full bg-gray-300 rounded"></div>
+<div class="h-2 w-full bg-gray-100 rounded mt-1"></div>
+<div class="cta-element text-[9px] bg-gray-800 text-white px-2 py-1 rounded mt-2 w-full text-center focused" id="consulting-cta-contact">Get Started Here</div>
+</div>
+</div>
+</div>
+
+<!-- Contact form (Squarespace-owned form) -->
+<div class="node-group" id="node-contact">
+<div class="node-label">Contact Form</div>
+<div class="node-card node-form" onclick="openModal('modal-contact', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">GSC · last 16 mo</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">6</span></div>
+</div>
+<div class="mockup-content flex-col gap-1 bg-white p-3">
+<div class="w-full h-4 border border-gray-200 rounded px-2 flex items-center text-gray-400 text-[8px]">Name*</div>
+<div class="w-full h-4 border border-gray-200 rounded px-2 flex items-center text-gray-400 text-[8px]">Email*</div>
+<div class="w-full h-4 border border-gray-200 rounded px-2 flex items-center text-gray-400 text-[8px]">Services you're interested in...</div>
+<div class="cta-element w-full h-5 bg-black text-white rounded flex items-center justify-center font-bold text-[8px] mt-1 focused">Submit</div>
+</div>
+</div>
+</div>
+
+<!-- Proposed (Justine): new Speaking Inquiry form, hidden until toggled -->
+<div class="node-group hidden proposed-justine" id="node-proposed-speaking-form">
+<div class="node-label">Speaking Inquiry Form <span class="text-[9px] text-yellow-700">(proposed)</span></div>
+<div class="node-card node-form" onclick="openModal('modal-proposed-speaking-form', event)">
+<div class="proposed-badge">Justine</div>
+<div class="mockup-content flex-col gap-1 bg-white p-3">
+<div class="w-full h-4 border border-yellow-300 rounded px-2 flex items-center text-gray-400 text-[8px]">Email*</div>
+<div class="text-[7px] text-gray-500 px-1">Tags SPEAKING · consent notice</div>
+<div class="cta-element w-full h-5 text-white rounded flex items-center justify-center font-bold text-[8px] mt-1" style="background:#D4B106;" id="propspeakingform-cta-propspeakingwelcome">Request a Proposal</div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="resize-handle"></div>
+</div>
+
+<!-- ============ THINKIFIC PLATFORM (was Shopify) ============ -->
+<div class="platform-group expanded overflow-hidden" id="plat-thinkific" style="left: 1520px; top: 420px; z-index: 20;">
+<div class="dblclick-hint">Double-click to collapse</div>
+<div class="platform-header">
+<div class="platform-icon icon-thinkific">T</div>
+<div class="platform-title">Thinkific</div>
+<div class="platform-subtitle">drjessicabstern.thinkific.com</div>
+</div>
+<div class="platform-content">
+
+<!-- Checkout -->
+<div class="node-group" id="node-checkout">
+<div class="node-label">Course Checkout</div>
+<div class="node-card node-product" onclick="openModal('modal-checkout', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">Thinkific Payments</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Paid enrollments</span><span class="analytics-metric-value">1 ($349)</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">$0 enrollments</span><span class="analytics-metric-value">14</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-row gap-2">
+<div class="w-2/3 flex flex-col gap-1">
+<div class="h-2 w-1/2 bg-gray-300 rounded"></div>
+<div class="h-3 w-full bg-gray-100 border border-gray-200 rounded"></div>
+<div class="cta-element h-4 w-full rounded mt-1 text-[7px] flex items-center justify-center font-bold focused" id="checkout-cta-course" style="background:#FCCC18;color:#1a1a1a;">Enroll</div>
+</div>
+<div class="w-1/3 bg-gray-50 h-full rounded border border-gray-100 text-[7px] flex items-center justify-center text-center">$349<br/>one-time</div>
+</div>
+</div>
+</div>
+
+<!-- Course -->
+<div class="node-group" id="node-course">
+<div class="node-label">Mayhem To Magic (Course)</div>
+<div class="node-card node-product" onclick="openModal('modal-course', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">Thinkific · learners</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Avg. progress</span><span class="analytics-metric-value">2%</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Completion</span><span class="analytics-metric-value">0%</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-col gap-1 p-2 items-start">
+<div class="text-[7px] w-full flex justify-between"><span>01 Foundations</span><span>✓</span></div>
+<div class="text-[7px] w-full flex justify-between"><span>02 Focus Formula</span><span class="text-gray-300">○</span></div>
+<div class="text-[7px] w-full flex justify-between"><span>03 Action Plan</span><span class="text-gray-300">○</span></div>
+<div class="text-[7px] w-full flex justify-between"><span>04 Procrastination</span><span class="text-gray-300">○</span></div>
+<div class="text-[7px] w-full flex justify-between"><span>05 Delegate &amp; Automate</span><span class="text-gray-300">○</span></div>
+</div>
+</div>
+</div>
+
+<!-- Draft second course -->
+<div class="node-group draft-node" id="node-draft-course2">
+<div class="node-label text-gray-400">ADHD &amp; Relationships: Tools for Couples</div>
+<div class="node-card node-form" onclick="openModal('modal-draft-course2', event)">
+<div class="draft-badge">Draft</div>
+<div class="mockup-content flex-col gap-1 bg-white p-3 items-center justify-center">
+<div class="text-[8px] font-bold text-gray-500 text-center">Not yet published</div>
+<div class="h-2 w-3/4 bg-gray-100 rounded"></div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="resize-handle"></div>
+</div>
+
+<!-- ============ FLODESK PLATFORM (was Klaviyo) ============ -->
+<div class="platform-group expanded overflow-hidden" id="plat-flodesk" style="left: 260px; top: 900px; z-index: 20;">
+<div class="dblclick-hint">Double-click to collapse</div>
+<div class="platform-header">
+<div class="platform-icon icon-flodesk">F</div>
+<div class="platform-title">Flodesk</div>
+<div class="platform-subtitle">email marketing</div>
+</div>
+<div class="platform-content">
+
+<!-- Newsletter / Workbook form -->
+<div class="node-group" id="node-newsletter-form">
+<div class="node-label">Newsletter / Workbook Form</div>
+<div class="node-card node-form" onclick="openModal('modal-newsletter-form', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">Flodesk · 2 embeds</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Visitors</span><span class="analytics-metric-value">239</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Opt-in rate</span><span class="analytics-metric-value">18.4%</span></div>
+</div>
+<div class="mockup-content flex-col gap-2 bg-white p-4">
+<div class="text-[8px] font-bold text-center">Stress Management Workbook</div>
+<div class="w-full h-5 border border-gray-200 rounded px-2 flex items-center text-gray-400 text-[8px]">Email Address</div>
+<div class="cta-element w-full h-5 bg-black text-white rounded flex items-center justify-center font-bold text-[8px] focused" id="newsletterform-cta-welcome">Join the List</div>
+</div>
+</div>
+</div>
+
+<!-- ADHD Couples Waitlist form -->
+<div class="node-group" id="node-adhd-waitlist-form">
+<div class="node-label">ADHD Couples Waitlist Form</div>
+<div class="node-card node-form" onclick="openModal('modal-adhd-waitlist-form', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">Flodesk · 2 embeds</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Visitors</span><span class="analytics-metric-value">13</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Opt-in rate</span><span class="analytics-metric-value">23.1%</span></div>
+</div>
+<div class="mockup-content flex-col gap-2 bg-white p-4">
+<div class="text-[8px] font-bold text-center">ADHD Couples Waitlist</div>
+<div class="w-full h-5 border border-gray-200 rounded px-2 flex items-center text-gray-400 text-[8px]">Email Address</div>
+<div class="cta-element w-full h-5 bg-black text-white rounded flex items-center justify-center font-bold text-[8px] focused" id="adhdwaitlist-cta-draftcourse2">Join Waitlist</div>
+</div>
+</div>
+</div>
+
+<!-- Mayhem to Magic waitlist form -->
+<div class="node-group" id="node-mayhem-waitlist-form">
+<div class="node-label">Mayhem to Magic Waitlist Form</div>
+<div class="node-card node-form" onclick="openModal('modal-mayhem-waitlist-form', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">Flodesk · 2 embeds</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Embed A</span><span class="analytics-metric-value">4.35%</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Embed B (Resources)</span><span class="analytics-metric-value">0%</span></div>
+</div>
+<div class="mockup-content flex-col gap-2 bg-white p-4">
+<div class="text-[8px] font-bold text-center">Mayhem to Magic! Waitlist</div>
+<div class="w-full h-5 border border-gray-200 rounded px-2 flex items-center text-gray-400 text-[8px]">Email Address</div>
+<div class="cta-element w-full h-5 bg-black text-white rounded flex items-center justify-center font-bold text-[8px] focused" id="mayhemwaitlist-cta-broadcast">Join Waitlist</div>
+</div>
+</div>
+</div>
+
+<!-- Current Welcome Email (single, live) -->
+<div class="node-group" id="node-welcome-email">
+<div class="node-label">Welcome Email <span class="text-[9px] text-gray-400">(1 send, live)</span></div>
+<div class="node-card node-email" onclick="openModal('modal-welcome-email', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">Flodesk workflow</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Opened</span><span class="analytics-metric-value">84.4%</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicked</span><span class="analytics-metric-value">56.3%</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-col items-start p-2 gap-1 bg-white">
+<div class="text-[8px] font-bold text-gray-800">To: Welcome Sequence</div>
+<div class="h-px w-full bg-gray-200 my-1"></div>
+<div class="h-1 w-3/4 bg-gray-200 rounded"></div>
+<div class="h-1 w-full bg-gray-200 rounded"></div>
+</div>
+</div>
+</div>
+
+<!-- Broadcast / campaign emails, grouped -->
+<div class="node-group" id="node-broadcast-emails">
+<div class="node-label">Broadcast / Campaign Emails <span class="text-[9px] text-gray-400">(7 sends)</span></div>
+<div class="node-card node-email" onclick="openModal('modal-broadcast-emails', event)">
+<div class="analytics-overlay">
+<div class="analytics-date">Flodesk · lifetime</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Open rate</span><span class="analytics-metric-value">47.5%</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Click rate</span><span class="analytics-metric-value">4.7%</span></div>
+</div>
+<div class="mockup-header"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div></div>
+<div class="mockup-content flex-col items-start p-2 gap-1 bg-white">
+<div class="text-[8px] font-bold text-gray-800">Mayhem To Magic Launch</div>
+<div class="h-px w-full bg-gray-200 my-1"></div>
+<div class="cta-element h-4 w-full bg-red-500 text-white rounded mt-1 text-[8px] flex items-center justify-center focused" id="broadcast-cta-mayhem">The course is HERE</div>
+</div>
+</div>
+</div>
+
+<!-- Draft workflows -->
+<div class="node-group draft-node" id="node-draft-postpowerkit">
+<div class="node-label text-gray-400">Post-Powerkit Purchase</div>
+<div class="node-card node-email" onclick="openModal('modal-draft-postpowerkit', event)">
+<div class="draft-badge">Draft</div>
+<div class="mockup-content flex-col items-center justify-center p-2 gap-1 bg-white">
+<div class="text-[8px] font-bold text-gray-500">Never activated</div>
+</div>
+</div>
+</div>
+
+<div class="node-group draft-node" id="node-draft-followup">
+<div class="node-label text-gray-400">Follow-up Sequence</div>
+<div class="node-card node-email" onclick="openModal('modal-draft-followup', event)">
+<div class="draft-badge">Draft</div>
+<div class="mockup-content flex-col items-center justify-center p-2 gap-1 bg-white">
+<div class="text-[8px] font-bold text-gray-500">Never activated</div>
+</div>
+</div>
+</div>
+
+<!-- Proposed (Justine): redesigned 3-part Welcome Series -->
+<div class="node-group hidden proposed-justine" id="node-proposed-welcome1">
+<div class="node-label">Welcome Send 1 · Day 0 <span class="text-[9px] text-yellow-700">(proposed)</span></div>
+<div class="node-card node-email" onclick="openModal('modal-proposed-welcome1', event)">
+<div class="proposed-badge">Justine</div>
+<div class="mockup-content flex-col items-start p-2 gap-1 bg-white">
+<div class="text-[8px] font-bold text-gray-800">Lead magnet delivery</div>
+<div class="h-1 w-full bg-yellow-100 rounded"></div>
+<div class="cta-element text-[7px] px-1 py-0.5 rounded mt-1" id="propwelcome1-cta-propwelcome2" style="background:#fef9c3;">→ Day 3</div>
+</div>
+</div>
+</div>
+
+<div class="node-group hidden proposed-justine" id="node-proposed-welcome2">
+<div class="node-label">Welcome Send 2 · Day 3 <span class="text-[9px] text-yellow-700">(proposed)</span></div>
+<div class="node-card node-email" onclick="openModal('modal-proposed-welcome2', event)">
+<div class="proposed-badge">Justine</div>
+<div class="mockup-content flex-col items-start p-2 gap-1 bg-white">
+<div class="text-[8px] font-bold text-gray-800">Quick win + credibility</div>
+<div class="h-1 w-full bg-yellow-100 rounded"></div>
+<div class="cta-element text-[7px] px-1 py-0.5 rounded mt-1" id="propwelcome2-cta-propwelcome3" style="background:#fef9c3;">→ Day 7</div>
+</div>
+</div>
+</div>
+
+<div class="node-group hidden proposed-justine" id="node-proposed-welcome3">
+<div class="node-label">Welcome Send 3 · Day 7 <span class="text-[9px] text-yellow-700">(proposed)</span></div>
+<div class="node-card node-email" onclick="openModal('modal-proposed-welcome3', event)">
+<div class="proposed-badge">Justine</div>
+<div class="mockup-content flex-col items-start p-2 gap-1 bg-white">
+<div class="text-[8px] font-bold text-gray-800">Deeper engagement + course</div>
+<div class="h-1 w-full bg-yellow-100 rounded"></div>
+</div>
+</div>
+</div>
+
+<!-- Proposed (Justine): Speaking Welcome automation -->
+<div class="node-group hidden proposed-justine" id="node-proposed-speaking-welcome">
+<div class="node-label">Speaking Welcome Email <span class="text-[9px] text-yellow-700">(proposed)</span></div>
+<div class="node-card node-email" onclick="openModal('modal-proposed-speaking-welcome', event)">
+<div class="proposed-badge">Justine</div>
+<div class="mockup-content flex-col items-start p-2 gap-1 bg-white">
+<div class="text-[8px] font-bold text-gray-800">Triggered on inquiry submit</div>
+<div class="h-1 w-full bg-yellow-100 rounded"></div>
+</div>
+</div>
+</div>
+
+</div>
+<div class="resize-handle"></div>
+</div>
+
+<!-- Mini-Map Overlay -->
+<div class="mini-map" id="mini-map">
+<div class="mini-map-viewport" id="mini-map-viewport" style="left: 0px; top: 0px; width: 170px; height: 120px;"></div>
+</div>
+</main>
+<!-- END: Main Map Container -->
+
+<!-- BEGIN: Modals -->
+<div class="modal-backdrop" id="modal-container" onclick="closeModal(event)">
+<div class="modal-content" onclick="event.stopPropagation()">
+<button class="modal-close" onclick="closeModal(event)">
+<svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="modal-body flex items-center justify-center" id="modal-body-content"></div>
+</div>
+</div>
+<!-- END: Modals -->
+
+<!-- BEGIN: Hidden Modal Content Templates -->
+<div class="hidden">
+
+<div class="w-full max-w-4xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-home">
+<div class="metadata-badge"><span>CTAs: 3</span><div class="metadata-dot"></div><span>Real page</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">GSC · last 16 months</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">650</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Impressions (site-wide)</span><span class="analytics-metric-value">15.1K</span></div>
+</div>
+<div class="h-12 bg-gray-100 border-b flex items-center px-4 gap-2">
+<div class="flex gap-1.5"><div class="w-3 h-3 rounded-full bg-red-400"></div><div class="w-3 h-3 rounded-full bg-yellow-400"></div><div class="w-3 h-3 rounded-full bg-green-400"></div></div>
+<div class="ml-4 flex-1 bg-white h-6 rounded text-xs text-center text-gray-400 flex items-center justify-center">drjessicabstern.com</div>
+</div>
+<div class="h-[560px] flex items-center justify-center relative" style="background:#586672;">
+<div class="relative z-10 text-center text-white px-8">
+<h1 class="text-4xl font-bold mb-4">You don't need to look for balance when you can create it.</h1>
+<p class="text-sm max-w-lg mx-auto mb-6 text-white/80">Psychology-backed speaking, consulting, and strategic partnerships that reduce burnout, strengthen leadership, and help teams do better — not busier.</p>
+<div class="flex gap-3 justify-center">
+<button class="bg-white text-black px-6 py-2 rounded-full font-medium transition hover:bg-gray-200" onclick="transitionTo('modal-about')">Meet Dr. Jessica</button>
+<button class="text-white px-6 py-2 rounded-full font-medium transition" style="background:#c8aeb9;" onclick="transitionTo('modal-mayhem')">Join the Course</button>
+</div>
+<p class="text-[11px] text-white/60 mt-6">Faculty at NYU Langone Health · Founder, Three Lemons LLC · media work with SiriusXM, Wondermind, and national outlets</p>
+</div>
+</div>
+<div class="p-6 bg-gray-50 border-t text-xs text-gray-500">Footer lead magnet (site-wide): "Stress Management Workbook — Join the List &amp; Grab Your Workbook" → feeds the Flodesk Newsletter/Workbook form.</div>
+</div>
+
+<div class="w-full max-w-3xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-about">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Real page</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">GSC · last 16 months</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">65</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Rank by traffic</span><span class="analytics-metric-value">#2 page</span></div>
+</div>
+<div class="p-10">
+<h2 class="text-2xl font-bold text-gray-900 mb-3">Welcome! I'm Dr. Jessica B. Stern</h2>
+<p class="text-gray-600 mb-4 leading-relaxed">Licensed clinical psychologist, faculty member at NYU Langone Health, and founder of Three Lemons LLC — the firm that helps organizations reduce burnout and build sustainable ways of working. National platform work has included conversations with Hoda Kotb, collaborations with Selena Gomez's Wondermind, and SiriusXM.</p>
+<button class="bg-gray-800 text-white px-6 py-2 rounded-lg font-medium transition hover:bg-gray-900" onclick="transitionTo('modal-contact')">Get in Touch</button>
+</div>
+</div>
+
+<div class="w-full max-w-4xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-mayhem">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Real page</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">Thinkific · live</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Enrollments</span><span class="analytics-metric-value">15</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Paid</span><span class="analytics-metric-value">1 ($349)</span></div>
+</div>
+<div class="h-16 flex items-center justify-center text-white text-xs font-semibold" style="background:#2e3a43;">IT'S HERE! ENROLLMENT NOW OPEN</div>
+<div class="p-10 grid grid-cols-2 gap-8" style="background:#f7f5f1;">
+<div>
+<p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Mayhem to Magic</p>
+<h2 class="text-3xl font-bold mb-3" style="color:#10151a;">Unlock Your Full Potential with Non-Toxic Productivity</h2>
+<p class="text-gray-600 mb-6 text-sm leading-relaxed">A comprehensive, achievable course to work smarter, eliminate overwhelm, and prioritize what matters — five modules, lifetime access, one-time payment.</p>
+<button class="text-white px-6 py-3 rounded-full font-medium text-sm" style="background:#c8aeb9;" onclick="transitionTo('modal-checkout')">Join the Course — $349</button>
+</div>
+<div class="flex flex-col gap-2 text-sm text-gray-700 justify-center">
+<div class="font-semibold mb-1">Five modules</div>
+<div>01 · The Foundations of Non-Toxic Productivity</div>
+<div>02 · The Focus Formula</div>
+<div>03 · The Action Plan</div>
+<div>04 · Overcoming Procrastination &amp; Roadblocks</div>
+<div>05 · Delegate &amp; Automate to Elevate</div>
+</div>
+</div>
+</div>
+
+<div class="w-full max-w-3xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-media">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Real page</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">GSC · last 16 months</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">20</span></div>
+</div>
+<div class="p-10">
+<h2 class="text-2xl font-bold text-gray-900 mb-2">Featured Media &amp; Interviews</h2>
+<p class="text-gray-500 text-sm mb-4">Host on SiriusXM's Doctor Radio · co-host, Wondermind's Baggage Drop podcast · medical review board, SELF Magazine.</p>
+<p class="text-xs text-gray-400 mb-6">20+ real placements including The Today Show, HuffPost, Fortune, The New York Times, Forbes, NY Post, SELF, VICE, CNET, The Washington Post, and NY1.</p>
+<button class="bg-gray-800 text-white px-6 py-2 rounded-lg font-medium transition hover:bg-gray-900" onclick="transitionTo('modal-contact')">Collaborate with Dr. Jessica</button>
+</div>
+</div>
+
+<div class="w-full max-w-3xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-resources">
+<div class="metadata-badge"><span>CTAs: 2</span><div class="metadata-dot"></div><span>Real page</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">GSC · last 16 months</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">11</span></div>
+</div>
+<div class="p-10">
+<h2 class="text-2xl font-bold text-gray-900 mb-2">The Productivity Powerkit</h2>
+<p class="text-gray-500 text-sm mb-4">A 40+ worksheet, science-based workbook for ADHD and non-ADHD maximizers — daily/weekly planners, goal-setting, time estimation, habit tracking, and thought-traps worksheets.</p>
+<p class="text-xs text-gray-400 mb-4">Also hosts "The Reading List" (affiliate book recommendations) and "My Go-To Tools &amp; Resources" (ClickUp, Notion, HoneyBook, Zencare, Canva, and more) — affiliate-disclosed.</p>
+<div class="text-xs bg-amber-50 border border-amber-100 text-amber-800 rounded p-2 mb-4">No dedicated Flodesk form was found separately for the Powerkit signup in the live account — it likely routes through the same Newsletter form with a segment tag ("Powerkit Customers": 15 contacts). Marked as unconfirmed rather than invented.</div>
+<button class="bg-gray-800 text-white px-6 py-2 rounded-lg font-medium transition hover:bg-gray-900" onclick="transitionTo('modal-newsletter-form')">Get the Powerkit</button>
+</div>
+</div>
+
+<div class="w-full max-w-3xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-speaking">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Real page</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">GSC · last 16 months</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value no-data">outside top 7 pages</span></div>
+</div>
+<div class="p-10">
+<h2 class="text-2xl font-bold text-gray-900 mb-2">Better, Not Busier: Sustainable Performance for Modern Teams</h2>
+<p class="text-gray-500 text-sm mb-4">Psychology-backed keynotes, VIP intensives, and workshops for high-achieving teams. Client list includes Wondermind and Amwins Group, Inc.</p>
+<div class="text-xs bg-amber-50 border border-amber-100 text-amber-800 rounded p-2 mb-4">Today this CTA routes to the general Contact form — no dedicated speaking-inquiry capture exists yet. See the proposed Speaking Inquiry Form (Justine's layer) for the recommended fix.</div>
+<button class="bg-gray-800 text-white px-6 py-2 rounded-lg font-medium transition hover:bg-gray-900" onclick="transitionTo('modal-contact')">Get Your Custom Proposal</button>
+</div>
+</div>
+
+<div class="w-full max-w-3xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-consulting">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Real page</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">GSC · last 16 months</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">7</span></div>
+</div>
+<div class="p-10">
+<h2 class="text-2xl font-bold text-gray-900 mb-2">Consultation &amp; Partnerships</h2>
+<p class="text-gray-500 text-sm mb-4">Strategic consulting, burnout-prevention audits, and long-term advisor partnerships, plus evidence-based brand/product advisory collaborations.</p>
+<button class="bg-gray-800 text-white px-6 py-2 rounded-lg font-medium transition hover:bg-gray-900" onclick="transitionTo('modal-contact')">Get Started Here</button>
+</div>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border border-gray-200" id="content-contact">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Inputs: 6</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">GSC · last 16 months</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicks</span><span class="analytics-metric-value">6</span></div>
+</div>
+<h2 class="text-2xl font-bold text-gray-900 mb-2 text-center">Let's Connect</h2>
+<p class="text-gray-500 text-center mb-6 text-sm">Interested in a speaking engagement, media opportunity, or consultation? Drop a line below.</p>
+<div class="flex flex-col gap-3">
+<div class="flex gap-2"><input class="w-1/2 border border-gray-300 rounded-lg p-2 text-sm" placeholder="First Name*"/><input class="w-1/2 border border-gray-300 rounded-lg p-2 text-sm" placeholder="Last Name*"/></div>
+<input class="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Email*" type="email"/>
+<select class="w-full border border-gray-300 rounded-lg p-2 text-sm text-gray-500"><option>Services: Speaking / Corporate Consulting / Provider Consulting &amp; Coaching / Media Collaboration</option></select>
+<input class="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Company / Organization"/>
+<input class="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Event Date &amp; Location (if known)"/>
+<textarea class="w-full border border-gray-300 rounded-lg p-2 text-sm" placeholder="Tell me a bit about yourself and what you're looking for!*"></textarea>
+<button class="w-full bg-black text-white px-6 py-3 rounded-lg font-bold transition hover:bg-gray-800">Submit</button>
+<p class="text-[10px] text-gray-400 text-center">Not for clinical services — urgent concerns should go to a local ER or 911.</p>
+</div>
+</div>
+
+<div class="w-full max-w-2xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-checkout">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Thinkific Payments</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">Thinkific · all-time</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Orders</span><span class="analytics-metric-value">1</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Net after fees</span><span class="analytics-metric-value">$333.34</span></div>
+</div>
+<div class="flex p-8 gap-8">
+<div class="w-2/3 flex flex-col gap-4">
+<h2 class="text-2xl font-bold text-gray-900">Checkout — Mayhem To Magic</h2>
+<div class="flex flex-col gap-3">
+<input class="w-full border border-gray-300 rounded-lg p-3" placeholder="Email Address" type="email"/>
+<input class="w-full border border-gray-300 rounded-lg p-3" placeholder="Card details" type="text"/>
+<button class="w-full text-black px-6 py-4 rounded-lg font-bold text-lg mt-2" style="background:#FCCC18;" onclick="closeModal()">Complete Enrollment</button>
+</div>
+</div>
+<div class="w-1/3 bg-gray-50 p-6 rounded-xl border border-gray-200">
+<h3 class="font-bold text-gray-800 mb-4">Order Summary</h3>
+<div class="flex justify-between text-sm mb-2"><span class="text-gray-600">Mayhem To Magic</span><span class="font-medium">$349.00</span></div>
+<div class="border-t border-gray-200 my-4"></div>
+<div class="flex justify-between font-bold text-lg"><span>Total</span><span>$349.00</span></div>
+<p class="text-[10px] text-gray-400 mt-4">14 other learners hold active $0.00 enrollments — enrollment ≠ payment on this platform; mechanism (manual/import/comp) is not disclosed by the export.</p>
+</div>
+</div>
+</div>
+
+<div class="w-full max-w-2xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-course">
+<div class="metadata-badge"><span>Modules: 5</span><div class="metadata-dot"></div><span>15 learners</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">Thinkific · learner progress</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Avg. progress</span><span class="analytics-metric-value">2%</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Completion</span><span class="analytics-metric-value">0%</span></div>
+</div>
+<div class="p-8">
+<h2 class="text-2xl font-bold text-gray-900 mb-4">Mayhem To Magic — Course Content</h2>
+<div class="border-t border-gray-200">
+<div class="flex justify-between py-3 border-b border-gray-200"><span>01 · The Foundations of Non-Toxic Productivity</span></div>
+<div class="flex justify-between py-3 border-b border-gray-200"><span>02 · The Focus Formula: Time Management &amp; Prioritization</span></div>
+<div class="flex justify-between py-3 border-b border-gray-200"><span>03 · The Action Plan: Task Management</span></div>
+<div class="flex justify-between py-3 border-b border-gray-200"><span>04 · Overcoming Procrastination &amp; Roadblocks</span></div>
+<div class="flex justify-between py-3 border-b border-gray-200"><span>05 · Delegate &amp; Automate to Elevate</span></div>
+</div>
+<p class="text-xs text-gray-400 mt-4">Highest-progress learner (Keith Dubon, the paid purchaser): 14% through the course. Most learners have not started.</p>
+</div>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border border-gray-200" id="content-draft-course2">
+<div class="metadata-badge"><span>Status: Draft</span></div>
+<h2 class="text-xl font-bold text-gray-500 mb-2">ADHD &amp; Relationships: Tools for Couples</h2>
+<p class="text-gray-500 text-sm">A second Thinkific course exists in the account but is not published. It has no checkout, no enrollments, and no live connection from the site yet — the ADHD Couples Waitlist form is the only signal of demand collected so far.</p>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border border-gray-200" id="content-newsletter-form">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Inputs: 1</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">Flodesk · 2 live embeds</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Combined visitors</span><span class="analytics-metric-value">239</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Combined opt-ins</span><span class="analytics-metric-value">44 (18.4%)</span></div>
+</div>
+<h2 class="text-2xl font-bold text-gray-900 mb-2 text-center">Free Minibook: Stress Management Workbook</h2>
+<p class="text-gray-500 text-center mb-6 text-sm">Worksheets, prompts, and guides for your stress-management toolbox. Embedded site-wide in the footer, plus a second placement.</p>
+<div class="flex flex-col gap-3">
+<input class="w-full border border-gray-300 rounded-lg p-3" placeholder="Email Address" type="email"/>
+<button class="w-full bg-black text-white px-6 py-3 rounded-lg font-bold" onclick="transitionTo('modal-welcome-email')">Join the List &amp; Grab Your Workbook</button>
+</div>
+<p class="text-[10px] text-gray-400 mt-4 text-center">Segments applied: Website subscribe (229 contacts), New Products (191), Speaking and Corporate Offerings (191).</p>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border border-gray-200" id="content-adhd-waitlist-form">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Inputs: 1</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">Flodesk · 2 live embeds</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Form 1</span><span class="analytics-metric-value">0 / 0 (0%)</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Form 2</span><span class="analytics-metric-value">13 / 3 (23.1%)</span></div>
+</div>
+<h2 class="text-2xl font-bold text-gray-900 mb-2 text-center">ADHD Couples Waitlist</h2>
+<p class="text-gray-500 text-center mb-6 text-sm">Captures interest ahead of the still-unpublished "ADHD &amp; Relationships: Tools for Couples" course.</p>
+<div class="flex flex-col gap-3">
+<input class="w-full border border-gray-300 rounded-lg p-3" placeholder="Email Address" type="email"/>
+<button class="w-full bg-black text-white px-6 py-3 rounded-lg font-bold" onclick="transitionTo('modal-draft-course2')">Join Waitlist</button>
+</div>
+<p class="text-[10px] text-gray-400 mt-4 text-center">Real gap: this waitlist currently has no automated follow-up sequence behind it.</p>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border border-gray-200" id="content-mayhem-waitlist-form">
+<div class="metadata-badge"><span>CTAs: 1</span><div class="metadata-dot"></div><span>Inputs: 1</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">Flodesk · 2 live embeds</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Embed A</span><span class="analytics-metric-value">92 / 4 (4.35%)</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Embed B (Resources)</span><span class="analytics-metric-value">78 / 0 (0%)</span></div>
+</div>
+<h2 class="text-2xl font-bold text-gray-900 mb-2 text-center">Mayhem to Magic! Waitlist</h2>
+<p class="text-gray-500 text-center mb-6 text-sm">Pre-launch waitlist capture. The course launched May 2025 — the Resources-page embed (Embed B) is a leftover, orphaned placement now converting at 0%.</p>
+<div class="flex flex-col gap-3">
+<input class="w-full border border-gray-300 rounded-lg p-3" placeholder="Email Address" type="email"/>
+<button class="w-full bg-black text-white px-6 py-3 rounded-lg font-bold" onclick="transitionTo('modal-broadcast-emails')">Join Waitlist</button>
+</div>
+</div>
+
+<div class="w-full max-w-2xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-welcome-email">
+<div class="metadata-badge"><span>Workflow: Published</span><div class="metadata-dot"></div><span>1 send step</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">Flodesk workflow report</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Delivered</span><span class="analytics-metric-value">32 entries</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Opened</span><span class="analytics-metric-value">84.4%</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Clicked</span><span class="analytics-metric-value">56.3%</span></div>
+</div>
+<div class="bg-gray-100 p-4 border-b border-gray-200 text-sm text-gray-600">
+<div class="font-bold text-gray-900 mb-1">Workflow: Welcome Sequence</div>
+<div>Segment-based trigger → 1 send-email step (published)</div>
+</div>
+<div class="p-8 text-gray-800 flex flex-col items-center text-center">
+<h2 class="text-2xl font-bold mb-4">Currently a single welcome email</h2>
+<p class="mb-4 max-w-md text-gray-600 text-sm">31 of 32 entries are still active with 0 completed — because there is only one step, "active" mostly means "not yet re-engaged," not "mid-sequence."</p>
+<div class="text-xs bg-amber-50 border border-amber-100 text-amber-800 rounded p-3 max-w-md">Justine's playbook proposes replacing this with a 3-part series (Day 0 / 3 / 7). Toggle "Justine" under Proposed Changes to see it.</div>
+</div>
+</div>
+
+<div class="w-full max-w-2xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 relative" id="content-broadcast-emails">
+<div class="metadata-badge"><span>Sends: 7</span><div class="metadata-dot"></div><span>1,178 total volume</span></div>
+<div class="analytics-overlay hidden">
+<div class="analytics-date">Flodesk · lifetime broadcasts</div>
+<div class="analytics-metric"><span class="analytics-metric-label">Delivery rate</span><span class="analytics-metric-value">99.0%</span></div>
+<div class="analytics-metric"><span class="analytics-metric-label">Open / Click</span><span class="analytics-metric-value">47.5% / 4.7%</span></div>
+</div>
+<div class="p-8">
+<h2 class="text-xl font-bold text-gray-900 mb-4">Broadcast history</h2>
+<table class="w-full text-xs text-left text-gray-600">
+<tr class="border-b border-gray-200 font-semibold text-gray-800"><td class="py-1">Subject</td><td class="py-1">Sent</td><td class="py-1">Open</td><td class="py-1">Click</td></tr>
+<tr class="border-b border-gray-100"><td class="py-1">The course is HERE (early-bird)!</td><td>198</td><td>48.5%</td><td>7.6%</td></tr>
+<tr class="border-b border-gray-100"><td class="py-1">Last chance for early-bird — ending today!</td><td>193</td><td>32.6%</td><td>1.6%</td></tr>
+<tr class="border-b border-gray-100"><td class="py-1">Burned Out or Just Busy? Try the FUEL Method.</td><td>193</td><td>32.6%</td><td>2.1%</td></tr>
+<tr class="border-b border-gray-100"><td class="py-1">Mayhem To Magic! (waitlist)</td><td>182</td><td>59.3%</td><td>2.7%</td></tr>
+<tr class="border-b border-gray-100"><td class="py-1">Mayhem To Magic! (waitlist, small batch)</td><td>7</td><td>57.1%</td><td>0%</td></tr>
+<tr class="border-b border-gray-100"><td class="py-1">Two new workshops on ADHD &amp; relationships</td><td>208</td><td>46.2%</td><td>9.1%</td></tr>
+<tr><td class="py-1">Circle-back — January is almost over!</td><td>197</td><td>62.9%</td><td>4.6%</td></tr>
+</table>
+<button class="mt-6 bg-red-500 text-white px-6 py-2 rounded-lg font-medium text-sm" onclick="transitionTo('modal-mayhem')">View: The course is HERE</button>
+</div>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border border-gray-200" id="content-draft-postpowerkit">
+<div class="metadata-badge"><span>Status: Draft</span></div>
+<h2 class="text-xl font-bold text-gray-500 mb-2">Post-Powerkit Purchase</h2>
+<p class="text-gray-500 text-sm">A Flodesk workflow that exists in draft form, last edited about a year ago. It has never been activated, so Powerkit recipients today receive no dedicated automated follow-up.</p>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border border-gray-200" id="content-draft-followup">
+<div class="metadata-badge"><span>Status: Draft</span></div>
+<h2 class="text-xl font-bold text-gray-500 mb-2">Follow-up Sequence</h2>
+<p class="text-gray-500 text-sm">A second draft workflow, also last edited about a year ago and never activated.</p>
+</div>
+
+<!-- Proposed (Justine) modal content -->
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border-2 relative" style="border-color:#D4B106;" id="content-proposed-speaking-form">
+<div class="metadata-badge" style="background:rgba(212,177,6,0.9);"><span>Proposed · Justine</span></div>
+<h2 class="text-xl font-bold text-gray-900 mb-2">Speaking Inquiry Form (new)</h2>
+<p class="text-gray-600 text-sm mb-3">A dedicated sign-up point on the Speaking page, separate from the general Contact form. "Request a Proposal" requires only an email to proceed; submission auto-adds the SPEAKING tag to the general list.</p>
+<p class="text-xs text-gray-400">Includes boilerplate consent language and triggers exactly one automated welcome send — see the linked Speaking Welcome Email.</p>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border-2" style="border-color:#D4B106;" id="content-proposed-welcome1">
+<div class="metadata-badge" style="background:rgba(212,177,6,0.9);"><span>Proposed · Justine</span></div>
+<h2 class="text-xl font-bold text-gray-900 mb-2">Welcome Send 1 — Immediate (0–5 min)</h2>
+<p class="text-gray-600 text-sm">Delivers exactly the lead magnet the subscriber signed up for, confirmed in the subject line, with no additional asks. Sets expectations for cadence and teases Send 2's tip.</p>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border-2" style="border-color:#D4B106;" id="content-proposed-welcome2">
+<div class="metadata-badge" style="background:rgba(212,177,6,0.9);"><span>Proposed · Justine</span></div>
+<h2 class="text-xl font-bold text-gray-900 mb-2">Welcome Send 2 — Day 3</h2>
+<p class="text-gray-600 text-sm">Leads with a quick win tied to the lead magnet's topic, then introduces Dr. Stern's clinical background and NYU Langone affiliation. Credibility-building, not a sales send.</p>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border-2" style="border-color:#D4B106;" id="content-proposed-welcome3">
+<div class="metadata-badge" style="background:rgba(212,177,6,0.9);"><span>Proposed · Justine</span></div>
+<h2 class="text-xl font-bold text-gray-900 mb-2">Welcome Send 3 — Day 7</h2>
+<p class="text-gray-600 text-sm">Invites deeper engagement: points to the resource library, introduces the course softly, and closes with an invitation to reply — which also helps deliverability.</p>
+</div>
+
+<div class="w-full max-w-lg mx-auto bg-white shadow-xl rounded-xl p-8 relative border-2" style="border-color:#D4B106;" id="content-proposed-speaking-welcome">
+<div class="metadata-badge" style="background:rgba(212,177,6,0.9);"><span>Proposed · Justine</span></div>
+<h2 class="text-xl font-bold text-gray-900 mb-2">Speaking Welcome Email (new automation)</h2>
+<p class="text-gray-600 text-sm">Triggered automatically the moment someone submits the Speaking Inquiry Form. Confirms Dr. Stern received the request and will follow up personally within 2 business days.</p>
+</div>
+
+<div class="text-center p-12 relative bg-white shadow-xl rounded-xl border border-gray-200" id="content-generic">
+<div class="metadata-badge"><span>CTAs: 0</span><div class="metadata-dot"></div><span>Inputs: 0</span></div>
+<h2 class="text-2xl font-bold text-gray-800 mb-4" id="generic-title">Page Detail</h2>
+<p class="text-gray-500">Detail view for this node.</p>
+</div>
+
+</div>
+<!-- END: Hidden Modal Content Templates -->
+
+<script data-purpose="map-logic">
+    // Explicit persistent connections between source anchors (CTA elements / source cards) and target nodes.
+    // [sourceAnchorId, targetNodeId, type, metadata]
+    const connections = [
+      // Real acquisition channels -> landing pages
+      ['source-google', 'node-home', 'cross-platform', { weight: 5 }],
+      ['source-facebook', 'node-home', 'cross-platform', { weight: 2 }],
+      ['source-instagram', 'node-home', 'cross-platform', { weight: 2 }],
+      ['source-podcast', 'node-media', 'cross-platform', { weight: 2 }],
+
+      // Squarespace intra-platform
+      ['home-cta-about', 'node-about', 'straight', { weight: 2 }],
+      ['home-cta-mayhem', 'node-mayhem', 'straight', { weight: 5 }],
+      ['about-cta-contact', 'node-contact', 'straight', { weight: 1 }],
+      ['media-cta-contact', 'node-contact', 'straight', { weight: 1 }],
+      ['speaking-cta-contact', 'node-contact', 'straight', { weight: 2 }],
+      ['consulting-cta-contact', 'node-contact', 'straight', { weight: 1 }],
+
+      // Squarespace -> Flodesk (cross-platform, forms)
+      ['home-cta-newsletter', 'node-newsletter-form', 'cross-platform', { weight: 4 }],
+      ['resources-cta-form', 'node-newsletter-form', 'cross-platform', { weight: 2 }],
+
+      // Squarespace -> Thinkific (the money path)
+      ['mayhem-cta-checkout', 'node-checkout', 'cross-platform', { weight: 6 }],
+
+      // Thinkific intra-platform
+      ['checkout-cta-course', 'node-course', 'straight', { weight: 5 }],
+
+      // Flodesk intra-platform
+      ['newsletterform-cta-welcome', 'node-welcome-email', 'straight', { weight: 4 }],
+      ['mayhemwaitlist-cta-broadcast', 'node-broadcast-emails', 'straight', { weight: 3 }],
+
+      // Flodesk -> Squarespace (broadcasts driving back to the sales page)
+      ['broadcast-cta-mayhem', 'node-mayhem', 'cross-platform', { weight: 4 }],
+
+      // Flodesk -> Thinkific draft (real gap: waitlist with no course behind it yet)
+      ['adhdwaitlist-cta-draftcourse2', 'node-draft-course2', 'cross-platform', { weight: 1 }],
+
+      // Proposed (Justine) — automated sequences only, hidden unless toggled
+      ['newsletterform-cta-welcome', 'node-proposed-welcome1', 'straight', { weight: 3 }],
+      ['propwelcome1-cta-propwelcome2', 'node-proposed-welcome2', 'straight', { weight: 3 }],
+      ['propwelcome2-cta-propwelcome3', 'node-proposed-welcome3', 'straight', { weight: 2 }],
+      ['speaking-cta-propspeakingform', 'node-proposed-speaking-form', 'straight', { weight: 2 }],
+      ['propspeakingform-cta-propspeakingwelcome', 'node-proposed-speaking-welcome', 'cross-platform', { weight: 2 }]
+    ];
+
+    let savedState = null;
+
+    function getCenterCoordinates(element) {
+        if(!element) return {x:0, y:0};
+        const rect = element.getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        };
+    }
+
+    // Proposed Changes: only Justine has real bound content right now (her 6-Month
+    // Email Playbook's automated-sequence proposals). Himanshi/Jordan/Arsh are
+    // intentionally inert placeholders until real proposals exist for them.
+    function toggleProposed(person, show) {
+        if (person === 'justine') {
+            document.querySelectorAll('.proposed-justine').forEach(el => {
+                el.classList.toggle('hidden', !show);
+            });
+        }
+        drawConnections();
+        updateMinimap();
+    }
+
+    function drawConnections() {
+      const svg = document.getElementById('svg-layer');
+      svg.innerHTML = '';
+
+      const svgRect = svg.getBoundingClientRect();
+      const drawnCollapsedLinks = new Set();
+
+      connections.forEach(([sourceId, targetId, type, metadata], index) => {
+        let sourceAnchor = document.getElementById(sourceId);
+        let targetNode = document.getElementById(targetId);
+
+        if (!sourceAnchor || !targetNode) return;
+
+        let sourceNode = sourceAnchor.closest('.node-group');
+        let sourceIsCard = sourceAnchor.classList.contains('source-card');
+
+        let sourcePlat = sourceNode ? sourceNode.closest('.platform-group') : null;
+        let targetPlat = targetNode.closest('.platform-group');
+
+        const sourceExpanded = sourcePlat && sourcePlat.classList.contains('expanded');
+        const targetExpanded = targetPlat && targetPlat.classList.contains('expanded');
+
+        if (!sourceIsCard && sourcePlat && targetPlat && !sourceExpanded && !targetExpanded && sourcePlat === targetPlat) {
+            return;
+        }
+
+        let sElement = (sourceExpanded || sourceIsCard) ? sourceAnchor : sourcePlat;
+        let tElement = targetExpanded ? (targetNode.querySelector('.node-card') || targetNode) : targetPlat;
+
+        const sRect = sElement.getBoundingClientRect();
+        const tRect = tElement.getBoundingClientRect();
+
+        if (sRect.width === 0 || sRect.height === 0 || tRect.width === 0 || tRect.height === 0) return;
+
+        if (!sourceIsCard && sourcePlat && targetPlat && !sourceExpanded && !targetExpanded && sourcePlat !== targetPlat) {
+            const linkKey = sourcePlat.id + '-' + targetPlat.id;
+            if (drawnCollapsedLinks.has(linkKey)) return;
+            drawnCollapsedLinks.add(linkKey);
+        }
+
+        const sx = sRect.left + sRect.width / 2 - svgRect.left;
+        const sy = sRect.top + sRect.height / 2 - svgRect.top;
+        const tx = tRect.left + tRect.width / 2 - svgRect.left;
+        const ty = tRect.top + tRect.height / 2 - svgRect.top;
+
+        let pathD = '';
+        let headPos = {x: tx, y: ty, angle: 0};
+
+        const treatAsCrossPlatform = type === 'cross-platform' || sourcePlat !== targetPlat || sourceIsCard;
+        const intraStraight = type === 'straight' && sourceExpanded && targetExpanded && sourcePlat === targetPlat && !sourceIsCard;
+        const intraCurvedDown = type === 'curved-down' && sourceExpanded && targetExpanded && sourcePlat === targetPlat && !sourceIsCard;
+
+        if (treatAsCrossPlatform) {
+            const dx = tx - sx;
+            const dy = ty - sy;
+            const angle = Math.atan2(dy, dx);
+
+            const sAdjustX = Math.cos(angle) * (sRect.width/2 + 5);
+            const sAdjustY = Math.sin(angle) * (sRect.height/2 + 5);
+            const tAdjustX = Math.cos(angle) * (tRect.width/2 + 15);
+            const tAdjustY = Math.sin(angle) * (tRect.height/2 + 15);
+
+            pathD = `M ${sx + sAdjustX} ${sy + sAdjustY} L ${tx - tAdjustX} ${ty - tAdjustY}`;
+            headPos = {x: tx - tAdjustX, y: ty - tAdjustY, angle: angle * (180 / Math.PI)};
+        }
+        else if (intraStraight || (!treatAsCrossPlatform && type === 'straight')) {
+          const sRight = sRect.right - svgRect.left;
+          const tLeft = tRect.left - svgRect.left;
+          pathD = `M ${sRight + 5} ${sy} L ${tLeft - 15} ${ty}`;
+          headPos = {x: tLeft - 5, y: ty, angle: 0};
+        }
+        else if (intraCurvedDown || (!treatAsCrossPlatform && type === 'curved-down')) {
+          const sBottom = sRect.bottom - svgRect.top;
+          const tTop = tRect.top - svgRect.top;
+          const midY = sBottom + Math.abs(tTop - sBottom) / 2;
+
+          pathD = `M ${sx} ${sBottom + 5}
+                   C ${sx} ${midY}, ${tx} ${midY}, ${tx} ${tTop - 15}`;
+          headPos = {x: tx, y: tTop - 5, angle: 90};
+        }
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', pathD);
+        path.setAttribute('class', treatAsCrossPlatform ? 'arrow-line cross-platform-line' : 'arrow-line');
+        path.dataset.index = index;
+        path.dataset.source = sourceId;
+        path.dataset.target = targetId;
+        if (metadata && metadata.weight) {
+            path.style.strokeWidth = metadata.weight + 'px';
+        } else {
+            path.style.strokeWidth = '3px';
+        }
+        svg.appendChild(path);
+
+        const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        arrow.setAttribute('points', '0,-5 10,0 0,5');
+        arrow.setAttribute('class', 'arrow-head');
+        arrow.setAttribute('transform', `translate(${headPos.x}, ${headPos.y}) rotate(${headPos.angle})`);
+        arrow.dataset.index = index;
+        svg.appendChild(arrow);
+      });
+      setupFocusMode();
+    }
+
+    // Dragging Logic
+    const draggables = document.querySelectorAll('.platform-group, .source-card');
+    let isDragging = false;
+    let isResizing = false;
+    let currentDraggable = null;
+    let offsetX, offsetY;
+    let startWidth, startHeight, startX, startY;
+
+    draggables.forEach(platform => {
+        if(platform.classList.contains('platform-group')){
+            platform.addEventListener('dblclick', function(e) {
+                if (e.target.closest('.node-card')) return;
+                this.classList.toggle('expanded');
+                setTimeout(() => { drawConnections(); updateMinimap(); }, 400);
+            });
+        }
+
+        platform.addEventListener('mousedown', function(e) {
+            if (e.target.classList.contains('resize-handle')) {
+                isResizing = true;
+                currentDraggable = this;
+                startWidth = parseInt(document.defaultView.getComputedStyle(this).width, 10);
+                startHeight = parseInt(document.defaultView.getComputedStyle(this).height, 10);
+                startX = e.clientX;
+                startY = e.clientY;
+                e.stopPropagation();
+                return;
+            }
+
+            if (this.classList.contains('platform-group') && this.classList.contains('expanded') && !e.target.closest('.platform-header')) {
+                return;
+            }
+
+            if (e.target.closest('.node-card') || e.target.closest('button') || e.target.closest('input')) return;
+
+            isDragging = true;
+            currentDraggable = this;
+
+            const rect = currentDraggable.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            draggables.forEach(p => p.style.zIndex = (p.classList.contains('expanded') || p.classList.contains('source-card')) ? '20' : '10');
+            currentDraggable.style.zIndex = '30';
+        });
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (isResizing && currentDraggable) {
+            const newWidth = startWidth + (e.clientX - startX);
+            const newHeight = startHeight + (e.clientY - startY);
+
+            currentDraggable.style.width = Math.max(300, newWidth) + 'px';
+            currentDraggable.style.height = Math.max(200, newHeight) + 'px';
+
+            drawConnections();
+            updateMinimap();
+            return;
+        }
+
+        if (!isDragging || !currentDraggable) return;
+
+        let x = e.clientX - offsetX;
+        let y = e.clientY - offsetY;
+
+        x = Math.max(0, x);
+        y = Math.max(0, y);
+
+        currentDraggable.style.left = `${x}px`;
+        currentDraggable.style.top = `${y}px`;
+
+        drawConnections();
+        updateMinimap();
+    });
+
+    document.addEventListener('mouseup', function() {
+        if (isDragging && currentDraggable) {
+            draggables.forEach(p => p.style.zIndex = (p.classList.contains('expanded') || p.classList.contains('source-card')) ? '20' : '10');
+        }
+        isDragging = false;
+        isResizing = false;
+        currentDraggable = null;
+    });
+
+    function toggleExpandAll(expand) {
+        document.querySelectorAll('.platform-group').forEach(p => {
+            if (expand) {
+                p.classList.add('expanded');
+            } else {
+                p.classList.remove('expanded');
+            }
+        });
+        setTimeout(() => { drawConnections(); updateMinimap(); }, 400);
+    }
+
+    function saveView() {
+        savedState = {
+            platforms: {},
+            nodes: {},
+            sources: {}
+        };
+        document.querySelectorAll('.platform-group').forEach(p => {
+            savedState.platforms[p.id] = {
+                expanded: p.classList.contains('expanded'),
+                left: p.style.left,
+                top: p.style.top,
+                width: p.style.width,
+                height: p.style.height
+            };
+        });
+        document.querySelectorAll('.node-group').forEach(n => {
+            savedState.nodes[n.id] = {
+                left: n.style.left,
+                top: n.style.top
+            };
+        });
+        document.querySelectorAll('.source-card').forEach(s => {
+            savedState.sources[s.id] = {
+                left: s.style.left,
+                top: s.style.top
+            };
+        });
+        document.getElementById('restore-btn').classList.remove('hidden');
+    }
+
+    function restoreView() {
+        if (!savedState) return;
+        document.querySelectorAll('.platform-group').forEach(p => {
+            if (savedState.platforms[p.id]) {
+                const state = savedState.platforms[p.id];
+                if (state.expanded) {
+                    p.classList.add('expanded');
+                } else {
+                    p.classList.remove('expanded');
+                }
+                p.style.left = state.left;
+                p.style.top = state.top;
+                p.style.width = state.width || '';
+                p.style.height = state.height || '';
+            }
+        });
+        document.querySelectorAll('.node-group').forEach(n => {
+             if(savedState.nodes[n.id]) {
+                 n.style.left = savedState.nodes[n.id].left;
+                 n.style.top = savedState.nodes[n.id].top;
+             }
+        });
+        document.querySelectorAll('.source-card').forEach(s => {
+             if(savedState.sources[s.id]) {
+                 s.style.left = savedState.sources[s.id].left;
+                 s.style.top = savedState.sources[s.id].top;
+             }
+        });
+
+        const allExpanded = Array.from(document.querySelectorAll('.platform-group')).every(p => p.classList.contains('expanded'));
+        document.getElementById('expand-toggle').checked = allExpanded;
+
+        setTimeout(() => { drawConnections(); updateMinimap(); }, 400);
+    }
+
+    // FOCUS MODE logic
+    function setupFocusMode() {
+        const paths = document.querySelectorAll('path.arrow-line');
+        const arrows = document.querySelectorAll('polygon.arrow-head');
+        const nodes = document.querySelectorAll('.node-group, .source-card, .platform-group');
+
+        function activateFocus(sourceId, targetId, index) {
+            document.body.classList.add('focus-mode');
+
+            if(index !== undefined) {
+                 paths.forEach(p => p.dataset.index == index ? p.classList.add('focused') : p.classList.remove('focused'));
+                 arrows.forEach(a => a.dataset.index == index ? a.classList.add('focused') : a.classList.remove('focused'));
+
+                 const p = document.querySelector(`path[data-index="${index}"]`);
+                 if(p) {
+                     const src = document.getElementById(p.dataset.source);
+                     const tgt = document.getElementById(p.dataset.target);
+                     nodes.forEach(n => n.classList.remove('focused'));
+                     if(src) src.classList.add('focused');
+                     if(src) {
+                         const parent = src.closest('.platform-group, .node-group');
+                         if(parent) parent.classList.add('focused');
+                     }
+                     if(tgt) tgt.classList.add('focused');
+                 }
+            } else {
+                nodes.forEach(n => n.classList.remove('focused'));
+                const elementId = this.id;
+
+                this.classList.add('focused');
+
+                paths.forEach(p => {
+                    const s = p.dataset.source;
+                    const t = p.dataset.target;
+                    let related = false;
+
+                    if(s === elementId || t === elementId) related = true;
+                    if(this.contains(document.getElementById(s)) || this.contains(document.getElementById(t))) related = true;
+                    if(document.getElementById(s) && document.getElementById(s).contains(this)) related = true;
+                    if(document.getElementById(t) && document.getElementById(t).contains(this)) related = true;
+
+                    if(related) {
+                        p.classList.add('focused');
+                        arrows.forEach(a => { if(a.dataset.index == p.dataset.index) a.classList.add('focused'); });
+                        if(document.getElementById(s)) {
+                            document.getElementById(s).classList.add('focused');
+                            const ps = document.getElementById(s).closest('.platform-group');
+                            if(ps) ps.classList.add('focused');
+                        }
+                        if(document.getElementById(t)) {
+                            document.getElementById(t).classList.add('focused');
+                            const pt = document.getElementById(t).closest('.platform-group');
+                            if(pt) pt.classList.add('focused');
+                        }
+                    } else {
+                        p.classList.remove('focused');
+                        arrows.forEach(a => { if(a.dataset.index == p.dataset.index) a.classList.remove('focused'); });
+                    }
+                });
+            }
+        }
+
+        function clearFocus() {
+            document.body.classList.remove('focus-mode');
+            paths.forEach(p => p.classList.remove('focused'));
+            arrows.forEach(a => a.classList.remove('focused'));
+            nodes.forEach(n => n.classList.remove('focused'));
+        }
+
+        paths.forEach(p => {
+            p.addEventListener('mouseenter', () => activateFocus(p.dataset.source, p.dataset.target, p.dataset.index));
+            p.addEventListener('mouseleave', clearFocus);
+        });
+
+        nodes.forEach(n => {
+            n.addEventListener('mouseenter', activateFocus);
+            n.addEventListener('mouseleave', clearFocus);
+        });
+    }
+
+    // Mini-map logic
+    function updateMinimap() {
+        const minimap = document.getElementById('mini-map');
+        minimap.querySelectorAll('.mini-map-dot').forEach(el => el.remove());
+
+        const mapW = window.innerWidth;
+        const mapH = window.innerHeight;
+        const miniW = 170;
+        const miniH = 120;
+        const scaleX = miniW / mapW;
+        const scaleY = miniH / mapH;
+
+        document.querySelectorAll('.platform-group, .source-card').forEach(el => {
+            if (el.classList.contains('hidden') || el.style.display === 'none') return;
+            const rect = el.getBoundingClientRect();
+            const dot = document.createElement('div');
+            dot.className = 'mini-map-dot';
+            dot.style.left = (rect.left * scaleX) + 'px';
+            dot.style.top = (rect.top * scaleY) + 'px';
+            dot.style.width = Math.max(4, rect.width * scaleX) + 'px';
+            dot.style.height = Math.max(4, rect.height * scaleY) + 'px';
+
+            if(el.classList.contains('source-card')) dot.style.background = '#f87171';
+            else if(el.id === 'plat-squarespace') dot.style.background = '#111827';
+            else if(el.id === 'plat-thinkific') dot.style.background = '#FCCC18';
+            else if(el.id === 'plat-flodesk') dot.style.background = '#E8506B';
+
+            minimap.appendChild(dot);
+        });
+
+        const vp = document.getElementById('mini-map-viewport');
+        vp.style.left = '0';
+        vp.style.top = '0';
+        vp.style.width = miniW + 'px';
+        vp.style.height = miniH + 'px';
+    }
+
+    window.addEventListener('load', () => {
+        const allExpanded = Array.from(document.querySelectorAll('.platform-group')).every(p => p.classList.contains('expanded'));
+        document.getElementById('expand-toggle').checked = allExpanded;
+
+        drawConnections();
+        updateMinimap();
+    });
+    window.addEventListener('resize', () => { drawConnections(); updateMinimap(); });
+
+    function toggleAnalytics(show) {
+      if (show) {
+        document.body.classList.add('show-analytics');
+        document.querySelectorAll('.modal-content .analytics-overlay').forEach(el => el.classList.remove('hidden'));
+      } else {
+        document.body.classList.remove('show-analytics');
+        document.querySelectorAll('.modal-content .analytics-overlay').forEach(el => el.classList.add('hidden'));
+      }
+    }
+
+    const modalContainer = document.getElementById('modal-container');
+    const modalBodyContent = document.getElementById('modal-body-content');
+
+    const genericTitleMap = {
+        'modal-proposed-speaking-form': 'Speaking Inquiry Form (proposed)',
+        'modal-proposed-welcome1': 'Welcome Send 1 (proposed)',
+        'modal-proposed-welcome2': 'Welcome Send 2 (proposed)',
+        'modal-proposed-welcome3': 'Welcome Send 3 (proposed)',
+        'modal-proposed-speaking-welcome': 'Speaking Welcome Email (proposed)'
+    };
+
+    function openModal(nodeId, event) {
+      if(event) {
+          event.stopPropagation();
+      }
+      modalContainer.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      let contentHtml = '';
+      const contentId = 'content-' + nodeId.replace('modal-', '');
+      const specificContent = document.getElementById(contentId);
+
+      if (specificContent) {
+        const clone = specificContent.cloneNode(true);
+        clone.id = '';
+
+        const analyticsOverlay = clone.querySelector('.analytics-overlay');
+        if (analyticsOverlay) {
+            if (document.body.classList.contains('show-analytics')) {
+                analyticsOverlay.classList.remove('hidden');
+            } else {
+                analyticsOverlay.classList.add('hidden');
+            }
+        }
+        contentHtml = clone.outerHTML;
+      } else {
+        const genericContent = document.getElementById('content-generic').cloneNode(true);
+        genericContent.id = '';
+        genericContent.querySelector('#generic-title').innerText = genericTitleMap[nodeId] || 'Page Detail';
+        contentHtml = genericContent.outerHTML;
+      }
+
+      modalBodyContent.innerHTML = contentHtml;
+    }
+
+    function transitionTo(nodeId) {
+      const targetNode = document.getElementById('node-' + nodeId.replace('modal-', ''));
+      if(targetNode) {
+          const platform = targetNode.closest('.platform-group');
+          if(platform && !platform.classList.contains('expanded')) {
+              platform.classList.add('expanded');
+              setTimeout(() => { drawConnections(); updateMinimap(); }, 400);
+          }
+      }
+      openModal(nodeId);
+    }
+
+    function closeModal(event) {
+      if(event) event.preventDefault();
+      modalContainer.classList.remove('active');
+      document.body.style.overflow = '';
+      setTimeout(() => { modalBodyContent.innerHTML = ''; }, 300);
+    }
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+
+  </script>
+</body>
+</html>
